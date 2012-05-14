@@ -16,7 +16,6 @@ and open the template in the editor.
         }
         body {            
             margin:50px 0px; padding:0px;
-            text-align:center;
         }
         #wrapper {
             margin:0px auto;
@@ -40,7 +39,8 @@ and open the template in the editor.
         function eval() {
             d = document.getElementById('messagearea').value;
             var jqxhr = $.post("/eval", { c: d }, function(x) {
-                document.getElementById('output').innerHTML += x + '<br/>';
+                var r = '<p>' + d + '</p>' + '<ul><p>' + x + '</p></ul>';
+                document.getElementById('output').innerHTML += r;
                 document.getElementById('messagearea').focus();
             });
 //            .success(function() { alert("second success"); })
