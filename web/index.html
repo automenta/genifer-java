@@ -1,0 +1,70 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Genifer</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+    </head>
+    <style>
+        body, input, textarea, select {
+            font-size: 120%;
+            font-family: sans-serif;            
+        }
+        body {            
+            margin:50px 0px; padding:0px;
+            text-align:center;
+        }
+        #wrapper {
+            margin:0px auto;
+            max-width: 800px;
+        }
+        #messagearea {
+            width: 100%;
+        }
+        #messageoptions {
+            text-align: left;
+            max-width: 400px;
+            float: right;
+        }
+        #generatebutton {
+            
+        }
+    </style>
+    
+    <script>
+        
+        function eval() {
+            d = document.getElementById('messagearea').value;
+            var jqxhr = $.post("/eval", { c: d }, function(x) {
+                document.getElementById('output').innerHTML += x + '<br/>';
+                document.getElementById('messagearea').focus();
+            });
+//            .success(function() { alert("second success"); })
+//            .error(function() { alert("error"); })
+//            .complete(function() { alert("complete"); });
+        }
+        
+    </script>
+
+    <body>
+        <div id="wrapper">
+        <form>
+            <p id="output">
+            </p>
+
+            <p >
+                <textarea id="messagearea" name="message" rows="2" cols="50" placeholder=""></textarea>
+            </p>
+            
+
+            <p>
+                <input id="generatebutton" type="button" onclick="eval();" value="eval"></input>
+            </p>
+        </form>
+        </div>
+    </body>
+</html>
