@@ -7,67 +7,67 @@
 				// default drag options
 				DragOptions : { cursor: 'pointer', zIndex:2000 },
 				// default to blue at one end and green at the other
-				EndpointStyles : [{ fillStyle:'#225588' }, { fillStyle:'#558822' }],
+				EndpointStyles : [{ fillStyle:"transparent" }, { fillStyle:"transparent" }],
 				// blue endpoints 7 px; green endpoints 11.
-				Endpoints : [ [ "Dot", {radius:7} ], [ "Dot", { radius:11 } ]],
+				Endpoints : [ [ "Rectangle", {width:20} ], [ "Rectangle", {width:20} ]],
 				// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 				// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
-				ConnectionOverlays : [
-					[ "Arrow", { location:0.9 } ],
-					[ "Label", { 
-						location:0.1,
-						id:"label",
-						cssClass:"aLabel"
-					}]
-				]
+				//ConnectionOverlays : [
+				//	[ "Arrow", { location:0.9 } ],
+				//	[ "Label", {
+				//		location:0.1,
+				//		id:"label",
+				//		cssClass:"aLabel"
+				//	}]
+				//]
 			});			
 
 			// this is the paint style for the connecting lines..
 			var connectorPaintStyle = {
 				lineWidth:3,
-				strokeStyle:"#deea18",
+				strokeStyle:"red",
 				joinstyle:"round"
 			},
 			// .. and this is the hover style. 
 			connectorHoverStyle = {
-				lineWidth:7,
-				strokeStyle:"#2e2aF8"
+				lineWidth:5,
+				strokeStyle:"pink"
 			},
 			// the definition of source endpoints (the small blue ones)
 			sourceEndpoint = {
-				endpoint:"Dot",
-				paintStyle:{ fillStyle:"#225588",radius:7 },
+				endpoint:"Rectangle",
+				paintStyle:{ fillStyle:"transparent"},
 				isSource:true,
-				connector:[ "Flowchart", { stub:40 } ],
+				connector:[ "Straight", { stub:40 } ],
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
                 dragOptions:{},
-                overlays:[
-                	[ "Label", { 
-	                	location:[0.5, 1.5], 
-	                	label:"Drag",
-	                	cssClass:"endpointSourceLabel" 
-	                } ]
-                ]
+                //overlays:[
+                //	[ "Label", {
+	            //    	location:[0.5, 1.5],
+	            //    	label:"Drag",
+	            //    	cssClass:"endpointSourceLabel"
+	            //  } ]
+				//  ]
 			},
 			// a source endpoint that sits at BottomCenter
 			bottomSource = jsPlumb.extend( { anchor:"BottomCenter" }, sourceEndpoint),
 			// the definition of target endpoints (will appear when the user drags a connection) 
 			targetEndpoint = {
-				endpoint:"Dot",					
-				paintStyle:{ fillStyle:"#558822",radius:11 },
+				endpoint:"Dot",
+				paintStyle:{ fillStyle:"red" },
 				hoverPaintStyle:connectorHoverStyle,
 				maxConnections:-1,
 				dropOptions:{ hoverClass:"hover", activeClass:"active" },
 				isTarget:true,			
-                overlays:[
-                	[ "Label", { location:[0.5, -0.5], label:"Drop", cssClass:"endpointTargetLabel" } ]
-                ]
-			},			
+                //overlays:[
+                //	[ "Label", { location:[0.5, -0.5], label:"Drop", cssClass:"endpointTargetLabel" } ]
+                //]
+			},
 			init = function(connection) {
 				connection.getOverlay("label").setLabel(connection.sourceId.substring(6) + "-" + connection.targetId.substring(6));
-			};			
+			};
 
 			var allSourceEndpoints = [], allTargetEndpoints = [];
 				_addEndpoints = function(toId, sourceAnchors, targetAnchors) {
@@ -81,21 +81,26 @@
 					}
 				};
 
-			_addEndpoints("window4", ["TopCenter", "BottomCenter"], ["LeftMiddle", "RightMiddle"]);
-			_addEndpoints("window2", ["LeftMiddle", "BottomCenter"], ["TopCenter", "RightMiddle"]);
-			_addEndpoints("window3", ["RightMiddle", "BottomCenter"], ["LeftMiddle", "TopCenter"]);
-			_addEndpoints("window1", ["LeftMiddle", "RightMiddle"], ["TopCenter", "BottomCenter"]);
+			_addEndpoints("window5", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
+			_addEndpoints("window4", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
+			_addEndpoints("window2", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
+			_addEndpoints("window3", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
+			_addEndpoints("window1", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
 						
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo, originalEvent) { 
 				init(connInfo.connection);
 			});
-						
+
 			// make all the window divs draggable						
 			jsPlumb.draggable(jsPlumb.getSelector(".window"));
 
 			// connect a few up
-			jsPlumb.connect({uuids:["window2BottomCenter", "window3TopCenter"]});
+			var common = {
+				anchors:[[0.5,0.5,0,0], [0.5,0.0,0,0] ],
+				endpoints:["Rectangle", "Dot" ]
+				};
+			jsPlumb.connect({source:"window1", target: "window2"},common);
 			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"]});
 			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"]});
 			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"]});

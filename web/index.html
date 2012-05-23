@@ -51,7 +51,7 @@ and open the template in the editor.
                 font-size: 50%;
             }
 
-            <!-- PlumbJS Style Overrides -->
+            <!-- PlumbJS Style Overrides>
             #demo {
                 width:80%;
                 height:20em;
@@ -60,8 +60,9 @@ and open the template in the editor.
             #window2 { top: 4em; left: 20em; }
             #window3 { top: 2em; left: 30em; }
             #window4 { top: 4em; left: 40em; }
+            #window5 { top: 4em; left: 50em; }
 
-			<!-- For inputting commands -->
+			<!-- For inputting commands>
             #messagearea {
                 width: 100%;
             }
@@ -99,8 +100,9 @@ and open the template in the editor.
 			<form>
 				<div id="tabs" class="tabs-bottom">
 					<ul>
-						<li><a href="#tabs-text">Text</a></li>
-						<li><a href="#tabs-graph">Graph</a></li>
+						<li><a href="#tabs-text">Console</a></li>
+						<li><a href="#tabs-graph">Natural Language</a></li>
+						<li><a href="#tabs-PZ">Fuzzy-Probabilistic</a></li>
 					</ul>
 					<div id="tabs-text">
 						<p >
@@ -109,24 +111,28 @@ and open the template in the editor.
 						<p>
 							<input id="generatebutton" type="button" onclick="eval();" value="eval"></input>
 						</p>
+						<p>
+							<textarea id="output" rows="10" cols="50"></textarea>
+						</p>
 					</div>
 					<div id="tabs-graph">
 						<div id="demo">
-							<div class="window" id="window1"><strong>1</strong><br/><br/></div>
-							<div class="window" id="window2"><strong>2</strong><br/><br/></div>
-							<div class="window" id="window3"><strong>3</strong><br/><br/></div>
-							<div class="window" id="window4"><strong>4</strong><br/><br/></div>
+							<div class="window" id="window1"><strong>John</strong><br/><br/></div>
+							<div class="window" id="window2"><strong>walks</strong><br/><br/></div>
+							<div class="window" id="window3"><strong>slowly</strong><br/><br/></div>
+							<div class="window" id="window4"><strong>to</strong><br/><br/></div>
+							<div class="window" id="window5"><strong>church</strong><br/><br/></div>
+
 							<script type='text/javascript' src='http://jsplumb.org/js/jquery.jsPlumb-1.3.8-all-min.js'></script>
 							<script type="text/javascript" src="flowchartConnectorsDemo.js"></script>
 							<script type="text/javascript" src="http://jsplumb.org/js/demo-list.js"></script>
 							<script type="text/javascript" src="http://jsplumb.org/js/demo-helper-jquery.js"></script>
 						</div>
 					</div>
+					<div id="tabs-PZ">
+						<img height="300px" width ="300px" src="PZ-example.jpg" alt="P(Z) distribution">
+					</div>
 				</div>
-
-				<p id="output">
-				</p>
-
 			</form>
         </div>
     </body>
