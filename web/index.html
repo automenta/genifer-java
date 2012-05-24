@@ -319,7 +319,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 						<li><a href="#tabs-PZ">Fuzzy-Probabilistic</a></li>
 					</ul>
 					<div id="tabs-text">
-						<p >
+						<p>
 							<textarea id="messagearea" name="message" rows="2" cols="50" placeholder="input geniform"></textarea>
 						</p>
 						<p>
@@ -342,7 +342,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 							<script type="text/javascript" src="http://jsplumb.org/js/demo-list.js"></script>
 							<script type="text/javascript" src="http://jsplumb.org/js/demo-helper-jquery.js"></script>
 						</div>
-						<p >
+						<p>
 							<textarea id="messagearea2" name="message2" rows="2" cols="50" placeholder="input lowercase english without punctuation"></textarea>
 						</p>
 						<p>
@@ -384,14 +384,10 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 			}
 
 		function makeboxes() {
-			document.getElementById('messagearea2').innerHTML += "Doing something!";
-		}
-
-		function makeboxes2() {
 			d2 = document.getElementById('messagearea2').value;
 			// tokenize d2
 			var toks = d2.split(" ");
-			log("Number of toks = " + toks.length);
+			//log("Number of toks = " + toks.length);
 			// create windows
 			for ( var i = 0; i < toks.length; i++ )
 				{
@@ -403,8 +399,11 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 					var thisWin = "window" + (i+7);
 					div.setAttribute("id", thisWin);
 
+					document.getElementById('demo').appendChild(div);
+					jsPlumb.draggable(thisWin);
+
 					_addEndpoints(thisWin, [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
-					jsPlumb.connect({source:"window1", target: thisWin},common);
+					jsPlumb.connect({source:"window1", target: thisWin});
 				}
 			// link windows
 			jsPlumb.repaintEverything();
