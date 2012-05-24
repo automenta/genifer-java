@@ -61,8 +61,8 @@ public class GeniferWeb extends Spark {
             @Override
             public Object handle(Request rqst, Response rspns) {
                 rspns.header("Content-type", "text/html");
-                
-                
+				//rspns.header("Content-type", "image/jpg");
+
                 String url = rqst.pathInfo();
                 String page = "index.html";
                 if (!url.equals("/")) {                

@@ -9,7 +9,7 @@
 				// default to blue at one end and green at the other
 				EndpointStyles : [{ fillStyle:"transparent" }, { fillStyle:"transparent" }],
 				// blue endpoints 7 px; green endpoints 11.
-				Endpoints : [ [ "Rectangle", {width:20} ], [ "Rectangle", {width:20} ]],
+				Endpoints : [ [ "Dot", {radius:10} ], [ "Dot", {radius:10} ]],
 				// the overlays to decorate each connection with.  note that the label overlay uses a function to generate the label text; in this
 				// case it returns the 'labelText' member that we set on each connection in the 'init' method below.
 				//ConnectionOverlays : [
@@ -35,14 +35,14 @@
 			},
 			// the definition of source endpoints (the small blue ones)
 			sourceEndpoint = {
-				endpoint:"Rectangle",
+				endpoint:[ "Dot", { radius:10 } ],
 				paintStyle:{ fillStyle:"transparent"},
 				isSource:true,
 				connector:[ "Straight", { stub:40 } ],
 				connectorStyle:connectorPaintStyle,
 				hoverPaintStyle:connectorHoverStyle,
 				connectorHoverStyle:connectorHoverStyle,
-                dragOptions:{},
+                dragOptions:{}
                 //overlays:[
                 //	[ "Label", {
 	            //    	location:[0.5, 1.5],
@@ -86,7 +86,7 @@
 			_addEndpoints("window2", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
 			_addEndpoints("window3", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
 			_addEndpoints("window1", [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
-						
+
 			// listen for new connections; initialise them the same way we initialise the connections at startup.
 			jsPlumb.bind("jsPlumbConnection", function(connInfo, originalEvent) { 
 				init(connInfo.connection);
@@ -97,15 +97,18 @@
 
 			// connect a few up
 			var common = {
-				anchors:[[0.5,0.5,0,0], [0.5,0.0,0,0] ],
-				endpoints:["Rectangle", "Dot" ]
+				anchors:[ [0.5,0.5,0,0], [0.5,0.0,0,0] ],
+				endpoints:["Dot", "Dot" ],
+				connector:["Straight"],
+				paintStyle:{ strokeStyle:"red", lineWidth:3 }
 				};
 			jsPlumb.connect({source:"window1", target: "window2"},common);
-			jsPlumb.connect({uuids:["window2LeftMiddle", "window4LeftMiddle"]});
-			jsPlumb.connect({uuids:["window4TopCenter", "window4RightMiddle"]});
-			jsPlumb.connect({uuids:["window3RightMiddle", "window2RightMiddle"]});
-			jsPlumb.connect({uuids:["window4BottomCenter", "window1TopCenter"]});
-			jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"]});
+			jsPlumb.connect({source:"window2", target: "window3"},common);
+			jsPlumb.connect({source:"window3", target: "window4"},common);
+			jsPlumb.connect({source:"window4", target: "window5"},common);
+			// jsPlumb.connect({uuids:["window3BottomCenter", "window1BottomCenter"]});
+
+			jsPlumb.repaintEverything();
 
 			//
 			// listen for clicks on connections, and offer to delete connections on click.

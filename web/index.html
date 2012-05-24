@@ -16,8 +16,8 @@ and open the template in the editor.
 
         <!-- jsPlumb -->
         <link rel="stylesheet" href="http://jsplumb.org/css/jsPlumbDemo.css">
-        <link rel="stylesheet" href="http://jsplumb.org/css/flowchartDemo.css">
-
+        <!-- link rel="stylesheet" href="http://jsplumb.org/css/flowchartDemo.css" -->
+		<link rel="stylesheet" type="text/css" href="flowchartDemo.css">
 
         <style>
             body, input, textarea, select {
@@ -25,42 +25,46 @@ and open the template in the editor.
                 font-family: sans-serif;
             }
             body {
-                margin:50px 0px; padding:0px;
+                margin:20px 0px; padding:0px;
             }
             #wrapper {
-                margin:0px auto;
-                max-width: 1000px;
+                margin: 0px auto;
+                max-width: 95%;
             }
             #messageoptions {
                 text-align: left;
-                max-width: 700px;
+                max-width: 95%;
                 float: right;
             }
             #generatebutton {
 
             }
 
-            #tabs { height: 700px; }
-            .tabs-bottom { position: relative; }
+            #tabs { height: 95%; }
+            .tabs-bottom { position:relative }
             .tabs-bottom .ui-tabs-panel {/* height: 140px;*/ overflow: auto; }
             .tabs-bottom .ui-tabs-nav { position: absolute !important; left: 0; bottom: 0; right:0; padding: 0 0.2em 0.2em 0; }
             .tabs-bottom .ui-tabs-nav li { margin-top: -2px !important; margin-bottom: 1px !important; border-top: none; border-bottom-width: 1px; }
             .ui-tabs-selected { margin-top: -3px !important; }
 
+            #tabs-text {
+                font-size: 100%;
+				height: 90%;
+            }
             #tabs-graph {
-                font-size: 50%;
+                font-size: 100%;
+				height: 90%;
             }
 
             <!-- PlumbJS Style Overrides>
             #demo {
-                width:80%;
-                height:20em;
+                width: 90%;
             }
-            #window1 { top: 2em; left: 10em; }
-            #window2 { top: 4em; left: 20em; }
-            #window3 { top: 2em; left: 30em; }
-            #window4 { top: 4em; left: 40em; }
-            #window5 { top: 4em; left: 50em; }
+            #window1 { top: 1em; left: 5em; }
+            #window2 { top: 1em; left: 10em; }
+            #window3 { top: 1em; left: 15em; }
+            #window4 { top: 1em; left: 20em; }
+            #window5 { top: 1em; left: 25em; }
 
 			<!-- For inputting commands>
             #messagearea {
@@ -117,20 +121,24 @@ and open the template in the editor.
 					</div>
 					<div id="tabs-graph">
 						<div id="demo">
-							<div class="window" id="window1"><strong>John</strong><br/><br/></div>
-							<div class="window" id="window2"><strong>walks</strong><br/><br/></div>
-							<div class="window" id="window3"><strong>slowly</strong><br/><br/></div>
-							<div class="window" id="window4"><strong>to</strong><br/><br/></div>
-							<div class="window" id="window5"><strong>church</strong><br/><br/></div>
+							<div style="height:3em" class="window" id="window1"><strong>John</strong></div>
+							<div style="height:3em" class="window" id="window2"><strong>walks</strong></div>
+							<div style="height:3em" class="window" id="window3"><strong>slowly</strong></div>
+							<div style="height:3em" class="window" id="window4"><strong>to</strong></div>
+							<div style="height:3em" class="window" id="window5"><strong>church</strong></div>
 
 							<script type='text/javascript' src='http://jsplumb.org/js/jquery.jsPlumb-1.3.8-all-min.js'></script>
 							<script type="text/javascript" src="flowchartConnectorsDemo.js"></script>
 							<script type="text/javascript" src="http://jsplumb.org/js/demo-list.js"></script>
 							<script type="text/javascript" src="http://jsplumb.org/js/demo-helper-jquery.js"></script>
 						</div>
+						<p >
+							<textarea id="messagearea2" name="message2" rows="2" cols="50" placeholder="input geniform"></textarea>
+						</p>
+
 					</div>
 					<div id="tabs-PZ">
-						<img height="300px" width ="300px" src="PZ-example.jpg" alt="P(Z) distribution">
+						<img height="206px" width ="175px" src="PZ-example.jpg" alt="P(Z) distribution">
 					</div>
 				</div>
 			</form>

@@ -46,7 +46,7 @@ public class GeniferPanel extends JPanel {
     }
     public void enter() {
         String t = inputText.getText();
-        
+
         Object result = genifer.eval(t);
         outputText.append("> " + t + "\n" + result.toString() + "\n\n");
         
