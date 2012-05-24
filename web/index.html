@@ -15,21 +15,238 @@ and open the template in the editor.
         <link rel="stylesheet" href="http://static.jquery.com/ui/css/demo-docs-theme/ui.theme.css" type="text/css" media="all" />
 
         <!-- jsPlumb -->
-        <link rel="stylesheet" href="http://jsplumb.org/css/jsPlumbDemo.css">
+        <!-- link rel="stylesheet" href="http://jsplumb.org/css/jsPlumbDemo.css" -->
         <!-- link rel="stylesheet" href="http://jsplumb.org/css/flowchartDemo.css" -->
-		<link rel="stylesheet" type="text/css" href="flowchartDemo.css">
 
         <style>
+
+/* ------------------ Copied from flowchartDemo.CSS ------------------- */
+
+.window { border:1px solid #346789;
+box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;
+-moz-border-radius:0.5em;
+border-radius:0.5em;
+opacity:0.8;
+filter:alpha(opacity=80);
+width:5em; height:2em;
+line-height:2em;
+text-align:center;
+z-index:20; position:absolute;
+background-color:#eeeeef;
+color:black;
+font-family:helvetica;padding:0.1em;
+font-size:1em;}
+
+.window:hover {
+box-shadow: 2px 2px 19px #444;
+   -o-box-shadow: 2px 2px 19px #444;
+   -webkit-box-shadow: 2px 2px 19px #444;
+   -moz-box-shadow: 2px 2px 19px #444;
+    opacity:0.6;
+filter:alpha(opacity=60);
+}
+
+.active {
+	border:1px dotted green;
+}
+.hover {
+	border:1px dotted red;
+}
+
+._jsPlumb_connector { z-index:4; }
+._jsPlumb_endpoint, .endpointTargetLabel, .endpointSourceLabel{ z-index:21;cursor:pointer; }
+.hl { border:3px solid red; }
+#debug { position:absolute; background-color:black; color:red; z-index:5000 }
+
+.aLabel {
+ 	background-color:white;
+	padding:0.4em;
+	font:12px sans-serif;
+	color:#444;
+	z-index:21;
+	border:1px dotted gray;
+	opacity:0.8;
+	filter:alpha(opacity=80);
+}
+
+/* ------------------ Copied from jsPlumbDemo.CSS ------------------- */
+
+body {
+	background-color:white; font-size:90%;
+	font-family:Helvetica;
+}
+/* docs */
+.code { background-color:#e4e5ef;
+border:1px solid black; margin:1em; padding:0.8em;
+overflow:auto;
+font-family:courier;
+font-size:8pt;
+}
+.section { border-bottom: 1px dotted black; padding:1em;font-family:helvetica;background-color:white;color:#333;}
+.menu,.renderMode {
+border-radius:0.5em;
+	position:fixed;
+	right:1em; top:1em;
+	background-color:#fff;
+	padding:0.3em;
+	opacity:0.8;
+	z-index:5000;
+	filter:alpha(opacity=80);
+		box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+.renderMode {
+left:1em;
+top:1em;
+width:13em;
+padding-top:0.1em;
+padding-bottom:0.5em;
+}
+.renderMode ul {
+padding-left:1em;
+}
+.renderMode ul li {
+list-style-type:none;
+}
+.renderMode h5 {
+margin-top:1em;
+margin-bottom:0.7em;
+}
+
+a {text-decoration:none;
+color:#01a3c6;
+font-weight:bold;
+font-family:helvetica;
+padding:0.3em;
+border-radius:0.2em;
+}
+a:hover {
+color:#1b911b;
+background-color:#f0f0f0;
+}
+#explanation a {
+background-color:transparent;
+}
+#explanation a:hover {
+text-decoration:underline;
+}
+.window, .label {
+	cursor:pointer;
+	box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+#explanation {
+	cursor:drag;
+	background-color:white;
+	color:black;
+	border:0.25em solid #ddd;
+	position:absolute;
+	right:1em;
+	top:4em;
+	width:32em;
+	font-size:90%;
+	-moz-border-radius:1em;
+	border-radius:1em;
+	padding:1em;
+	z-index:1000;
+	opacity:0.9;
+	filter:alpha(opacity=90);
+	font-family:helvetica;
+		box-shadow: 2px 2px 19px #aaa;
+   -o-box-shadow: 2px 2px 19px #aaa;
+   -webkit-box-shadow: 2px 2px 19px #aaa;
+   -moz-box-shadow: 2px 2px 19px #aaa;
+}
+
+.selected {
+	color:rgb(189,11,11);
+}
+
+/*  these styles are what jsPlumb attaches to the various elements it creates.
+._jsPlumb_connector {
+border:1px solid blue;
+}
+._jsPlumb_endpoint {
+border:1px solid green;
+}
+._jsPlumb_overlay {
+border:1px solid yellow;
+}
+*/
+
+.section li {
+list-style-type:none;
+}
+
+li.bullet {
+	list-style-type:circle;
+	}
+
+.section {
+padding-left:2em;
+font-size:10pt;
+}
+.index.section {
+padding-left:0;
+}
+
+.index {
+width:20em;
+font-size:9pt;
+float:left;
+background-color:#e4eeee;
+overflow:auto;
+padding-left:0.5em;
+}
+
+.index li {
+list-style-type:none;
+}
+
+.index ul, .index h3 {
+padding-left:1.5em;
+
+}
+
+.sub {
+margin-left:1em;
+}
+
+.table td {
+	text-align:center;
+}
+
+path, ._jsPlumb_endpoint { cursor:pointer; }
+
+.hover {
+	box-shadow: 2px 2px 19px red;
+   -o-box-shadow: 2px 2px 19px red;
+   -webkit-box-shadow: 2px 2px 19px red;
+   -moz-box-shadow: 2px 2px 19px red;
+}
+
+
             body, input, textarea, select {
                 font-size: 100%;
                 font-family: sans-serif;
             }
             body {
-                margin:20px 0px; padding:0px;
+                margin:10px 0px; padding:0px;
+				height:100%;
             }
             #wrapper {
                 margin: 0px auto;
                 max-width: 95%;
+				min-height: 95%
             }
             #messageoptions {
                 text-align: left;
@@ -37,10 +254,11 @@ and open the template in the editor.
                 float: right;
             }
             #generatebutton {
-
+            }
+	        #generatebutton2 {
             }
 
-            #tabs { height: 95%; }
+            #tabs { min-height: 95%; }
             .tabs-bottom { position:relative }
             .tabs-bottom .ui-tabs-panel {/* height: 140px;*/ overflow: auto; }
             .tabs-bottom .ui-tabs-nav { position: absolute !important; left: 0; bottom: 0; right:0; padding: 0 0.2em 0.2em 0; }
@@ -49,16 +267,24 @@ and open the template in the editor.
 
             #tabs-text {
                 font-size: 100%;
-				height: 90%;
+				min-height: 95%;
             }
             #tabs-graph {
                 font-size: 100%;
-				height: 90%;
+				min-height: 95%;
             }
 
-            <!-- PlumbJS Style Overrides>
+            /* PlumbJS Style Overrides  */
             #demo {
-                width: 90%;
+				top:20;
+				left:20;
+				width:95%;
+				height: 1000px;
+				min-height:90%;
+				display:block;
+				position:relative;
+				margin-left:0.1em;
+				margin-top:0.1em;
             }
             #window1 { top: 1em; left: 5em; }
             #window2 { top: 1em; left: 10em; }
@@ -66,38 +292,22 @@ and open the template in the editor.
             #window4 { top: 1em; left: 20em; }
             #window5 { top: 1em; left: 25em; }
 
-			<!-- For inputting commands>
+            #window7  { top: 3em; left: 5em; }
+            #window8  { top: 3em; left: 10em; }
+            #window9  { top: 3em; left: 15em; }
+            #window10 { top: 3em; left: 20em; }
+            #window11 { top: 3em; left: 25em; }
+
+			/* For inputting commands */
             #messagearea {
                 width: 100%;
             }
-
+			#messagearea2 {
+                width: 100%;
+            }
         </style>
 
     </head>
-
-    <script>
-
-        function eval() {
-            d = document.getElementById('messagearea').value;
-            var jqxhr = $.post("/eval", { c: d }, function(x) {
-                var r = '<p>' + d + '</p>' + '<ul><p>' + x + '</p></ul>';
-                document.getElementById('output').innerHTML += r;
-                //document.getElementById('messagearea').focus();
-                document.getElementById('tabs').scrollIntoView(true);
-            });
-			//            .success(function() { alert("second success"); })
-			//            .error(function() { alert("error"); })
-			//            .complete(function() { alert("complete"); });
-        }
-
-
-		$(function() {
-			$( "#tabs" ).tabs();
-			$( ".tabs-bottom .ui-tabs-nav, .tabs-bottom .ui-tabs-nav > *" )
-			.removeClass( "ui-corner-all ui-corner-top" )
-			.addClass( "ui-corner-bottom" );
-		});
-    </script>
 
     <body  data-library="jquery">
         <div id="wrapper">
@@ -113,7 +323,7 @@ and open the template in the editor.
 							<textarea id="messagearea" name="message" rows="2" cols="50" placeholder="input geniform"></textarea>
 						</p>
 						<p>
-							<input id="generatebutton" type="button" onclick="eval();" value="eval"></input>
+							<input id="generatebutton" type="button" onclick="eval();" value="Eval" />
 						</p>
 						<p>
 							<textarea id="output" rows="10" cols="50"></textarea>
@@ -121,11 +331,11 @@ and open the template in the editor.
 					</div>
 					<div id="tabs-graph">
 						<div id="demo">
-							<div style="height:3em" class="window" id="window1"><strong>John</strong></div>
-							<div style="height:3em" class="window" id="window2"><strong>walks</strong></div>
-							<div style="height:3em" class="window" id="window3"><strong>slowly</strong></div>
-							<div style="height:3em" class="window" id="window4"><strong>to</strong></div>
-							<div style="height:3em" class="window" id="window5"><strong>church</strong></div>
+							<div style="height:2em" class="window" id="window1"><strong>John</strong></div>
+							<div style="height:2em" class="window" id="window2"><strong>walks</strong></div>
+							<div style="height:2em" class="window" id="window3"><strong>slowly</strong></div>
+							<div style="height:2em" class="window" id="window4"><strong>to</strong></div>
+							<div style="height:2em" class="window" id="window5"><strong>church</strong></div>
 
 							<script type='text/javascript' src='http://jsplumb.org/js/jquery.jsPlumb-1.3.8-all-min.js'></script>
 							<script type="text/javascript" src="flowchartConnectorsDemo.js"></script>
@@ -133,9 +343,12 @@ and open the template in the editor.
 							<script type="text/javascript" src="http://jsplumb.org/js/demo-helper-jquery.js"></script>
 						</div>
 						<p >
-							<textarea id="messagearea2" name="message2" rows="2" cols="50" placeholder="input geniform"></textarea>
+							<textarea id="messagearea2" name="message2" rows="2" cols="50" placeholder="input lowercase english without punctuation"></textarea>
 						</p>
-
+						<p>
+							<input id="generatebutton2" type="button" onclick="makeboxes();" value="Tokenize" />
+							<br/>
+						</p>
 					</div>
 					<div id="tabs-PZ">
 						<img height="206px" width ="175px" src="PZ-example.jpg" alt="P(Z) distribution">
@@ -144,4 +357,66 @@ and open the template in the editor.
 			</form>
         </div>
     </body>
+	
+	<!-- script type="text/javascript" src="https://getfirebug.com/firebug-lite.js" -->
+
+	    <script>
+
+        function eval() {
+            d = document.getElementById('messagearea').value;
+            var jqxhr = $.post("/eval", { c: d }, function(x) {
+                var r = '<p>' + d + '</p>' + '<ul><p>' + x + '</p></ul>';
+                document.getElementById('output').innerHTML += r;
+                //document.getElementById('messagearea').focus();
+                document.getElementById('tabs').scrollIntoView(true);
+            });
+			//            .success(function() { alert("second success"); })
+			//            .error(function() { alert("error"); })
+			//            .complete(function() { alert("complete"); });
+        }
+
+		// Doesn't seem to work
+		// usage: log("Print something to console!");
+		function log(msg) {
+		    setTimeout(function() {
+		        throw new Error(msg);
+			    }, 0);
+			}
+
+		function makeboxes() {
+			document.getElementById('messagearea2').innerHTML += "Doing something!";
+		}
+
+		function makeboxes2() {
+			log("I'm trying to do something!");
+			d2 = document.getElementById('messagearea2').value;
+			// tokenize d
+			var toks = d2.split(" ");
+			log("Number of toks = " + toks.length);
+			// create windows
+			for ( var i = 0; i < toks.length; i++ )
+				{
+					var s = '<strong>' + toks[i] + '</strong>';
+					var div = document.createElement('div');
+					div.innerHTML = s;
+					// var elements = div.childNodes;
+					div.setAttribute("class", "window");
+					var thisWin = "window" + (i+7);
+					div.setAttribute("id", thisWin);
+
+					_addEndpoints(thisWin, [[0.5,0.5,0,0]], [[0.5,0.0,0,0]]);
+					jsPlumb.connect({source:"window1", target: thisWin},common);
+				}
+			// link windows
+			jsPlumb.repaintEverything();
+		}
+
+		$(function() {
+			$( "#tabs" ).tabs();
+			$( ".tabs-bottom .ui-tabs-nav, .tabs-bottom .ui-tabs-nav > *" )
+			.removeClass( "ui-corner-all ui-corner-top" )
+			.addClass( "ui-corner-bottom" );
+		});
+    </script>
+
 </html>
