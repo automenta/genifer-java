@@ -1,5 +1,5 @@
 ;(function() {
-	
+
 	window.jsPlumbDemo = {
 		init : function() {
 				

@@ -254,15 +254,13 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
             }
             #evalbutton {
             }
-	        #tokenizebutton {
-            }
 
             #tabs { min-height: 95%; }
             .tabs-bottom { position:relative }
             .tabs-bottom .ui-tabs-panel {/* height: 140px;*/ overflow: auto; }
             .tabs-bottom .ui-tabs-nav { position: absolute !important; left: 0; bottom: 0; right:0; padding: 0 0.2em 0.2em 0; }
-            .tabs-bottom .ui-tabs-nav li { margin-top: -2px !important; margin-bottom: 1px !important; border-top: none; border-bottom-width: 1px; }
-            .ui-tabs-selected { margin-top: -3px !important; }
+            .tabs-bottom .ui-tabs-nav li { margin-top: -10px !important; margin-bottom: 1px !important; border-top: none; border-bottom-width: 1px; }
+            .ui-tabs-selected { margin-top: -8px !important; }
 
             #tabs-text {
                 font-size: 100%;
@@ -347,8 +345,8 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 						</p>
 						<p>
 							<input id="tokenizebutton" type="button" onclick="makeboxes();" value="Tokenize" />
-							<input id="resultbutton" type="button" onclick="formulize();" value="Formulize" />
-							<input id="clearbutton" type="button" onclick="clear();" value="Clear" />
+							<input id="formularizebutton" type="button" onclick="formularize();" value="Formularize" />
+							<input id="clearbutton" type="button" onclick="clearboxes();" value="Clear" />
 						</p>
 					</div>
 					<div id="tabs-PZ">
@@ -384,17 +382,25 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 			    }, 0);
 			}
 
-		function clear() {
+		function clearboxes() {
 			jsPlumb.detachEveryConnection();
+			jsPlumb.removeEveryEndpoint();
+			var d = document.getElementById("demo");
+			for (i = 0; i < 20; ++i)
+				{
+				var w = document.getElementById("window" + i);
+				d.removeChild(w);
+				}
 			document.getElementById('messagearea2').value = "";
 		}
 
-		function formulize() {
+		function formularize() {
 			// read all links
 			var conns = jsPlumb.getAllConnections();
 			// debug:
 			document.getElementById('messagearea2').value += conns.toString();
 			// send to clojure
+
 		}
 
 		function makeboxes() {
