@@ -347,7 +347,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 						</p>
 						<p>
 							<input id="tokenizebutton" type="button" onclick="makeboxes();" value="Tokenize" />
-							<input id="resultbutton" type="button" onclick="formulate();" value="Formula" />
+							<input id="resultbutton" type="button" onclick="formulize();" value="Formulize" />
 							<input id="clearbutton" type="button" onclick="clear();" value="Clear" />
 						</p>
 					</div>
@@ -385,13 +385,22 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 			}
 
 		function clear() {
-			
+			jsPlumb.detachEveryConnection();
+			document.getElementById('messagearea2').value = "";
+		}
+
+		function formulize() {
+			// read all links
+			var conns = jsPlumb.getAllConnections();
+			// debug:
+			document.getElementById('messagearea2').value += conns.toString();
+			// send to clojure
 		}
 
 		function makeboxes() {
-			d2 = document.getElementById('messagearea2').value;
+			d = document.getElementById('messagearea2').value;
 			// tokenize d2
-			var toks = d2.split(" ");
+			var toks = d.split(" ");
 			// common attributes for links
 			var common = {
 				anchors:[ [0.5,0.5,0,0], [0.5,0.0,0,0] ],
