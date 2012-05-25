@@ -21,13 +21,21 @@ public class Genifer {
         } catch (IOException ex) {
             Logger.getLogger(Genifer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        try {
+            RT.loadResourceScript("genifer/io.clj");
+        } catch (IOException ex) {
+            Logger.getLogger(Genifer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-    
+
     Object eval(String t) {       
         return RT.var("genifer.core", "repl1").invoke(t);
     }
 
-    
+    Object formularize(String t) {
+        return RT.var("genifer.io", "formularize").invoke(t);
+    }
+
 //    public void induce();
 //    public void abduce(String input);
 //    public void backwardChain(String query);
@@ -35,7 +43,7 @@ public class Genifer {
 //    public void setDebug(int level);
 //    
 //    public Memory getMemory();    
-    
+
     public static void main(String[] args) throws Exception {
         System.out.println(new Genifer().eval("(+ 1 2)"));
     }

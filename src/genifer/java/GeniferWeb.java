@@ -55,7 +55,6 @@ public class GeniferWeb extends Spark {
         
         setPort(9090); // Spark will run on port 9090
 
-
         get(new Route("/*") {
 
             @Override
@@ -70,10 +69,10 @@ public class GeniferWeb extends Spark {
                     if (page.length() > 0)
                         page = xpage;
                 }
-                
+
                 System.out.println(rqst.pathInfo());
                 System.out.println(rqst.url() + " -> " + page);
-                
+
                 try {
                     return getStaticPage(page);
                 } catch (IOException ex) {
@@ -86,6 +85,21 @@ public class GeniferWeb extends Spark {
                 return null;
             }
         });
+
+		Route formularize;
+        post(formularize = new Route("/formularize") {
+
+            @Override
+            public Object handle(Request rqst, Response rspns) {
+                rspns.header("Content-type", "text/html");
+                String c = rqst.queryParams("c").toString();
+                String r = genifer.formularize(c).toString();
+                r = r.replaceAll("\n", "<br/>");
+                return r;
+            }
+        });
+        get(formularize);
+
         Route eval;
         post(eval = new Route("/eval") {
 

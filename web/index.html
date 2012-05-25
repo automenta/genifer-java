@@ -257,10 +257,14 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 
             #tabs { min-height: 95%; }
             .tabs-bottom { position:relative }
-            .tabs-bottom .ui-tabs-panel {/* height: 140px;*/ overflow: auto; }
-            .tabs-bottom .ui-tabs-nav { position: absolute !important; left: 0; bottom: 0; right:0; padding: 0 0.2em 0.2em 0; }
-            .tabs-bottom .ui-tabs-nav li { margin-top: -10px !important; margin-bottom: 1px !important; border-top: none; border-bottom-width: 1px; }
-            .ui-tabs-selected { margin-top: -8px !important; }
+            .tabs-bottom .ui-tabs-panel { /* height: 140px; */ overflow: auto; }
+            .tabs-bottom .ui-tabs-nav {
+				position: absolute !important; left: 0; bottom: 0; right:0;
+				padding: 0 0.2em 0.2em 0; }
+            .tabs-bottom .ui-tabs-nav li { margin-top: -2px !important;
+				margin-bottom: 1px !important; border-top: none;
+				border-bottom-width: 1px; }
+            .ui-tabs-selected { margin-top: -3px !important; }
 
             #tabs-text {
                 font-size: 100%;
@@ -329,6 +333,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 						<p>
 							<textarea id="output" rows="10" cols="50"></textarea>
 						</p>
+						<br/>
 					</div>
 					<div id="tabs-graph">
 						<div id="demo">
@@ -348,9 +353,12 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 							<input id="formularizebutton" type="button" onclick="formularize();" value="Formularize" />
 							<input id="clearbutton" type="button" onclick="clearboxes();" value="Clear" />
 						</p>
+						<br/>
 					</div>
 					<div id="tabs-PZ">
 						<img height="206px" width ="175px" src="PZ-example.jpg" alt="P(Z) distribution">
+						<br/>
+						<br/>
 					</div>
 				</div>
 			</form>
@@ -363,12 +371,13 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 
         function eval() {
             d = document.getElementById('messagearea').value;
-            var jqxhr = $.post("/eval", { c: d }, function(x) {
-                var r = '<p>' + d + '</p>' + '<ul><p>' + x + '</p></ul>';
-                document.getElementById('output').innerHTML += r;
-                //document.getElementById('messagearea').focus();
-                document.getElementById('tabs').scrollIntoView(true);
-            });
+            var jqxhr = $.post("/eval", { c: d },
+				function(x) {
+					var r = 'in:' + d + '\n' + 'out:' + x + '\n';
+					document.getElementById('output').value += r
+					//document.getElementById('messagearea').focus();
+					// document.getElementById('tabs').scrollIntoView(true);
+				});
 			//            .success(function() { alert("second success"); })
 			//            .error(function() { alert("error"); })
 			//            .complete(function() { alert("complete"); });
@@ -386,22 +395,36 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 			jsPlumb.detachEveryConnection();
 			jsPlumb.removeEveryEndpoint();
 			var d = document.getElementById("demo");
+			document.getElementById('messagearea2').value = '';
 			for (i = 0; i < 20; ++i)
 				{
 				var w = document.getElementById("window" + i);
 				d.removeChild(w);
 				}
-			document.getElementById('messagearea2').value = "";
 		}
 
 		function formularize() {
-			// read all links
-			var conns = jsPlumb.getAllConnections();
-			// debug:
-			document.getElementById('messagearea2').value += conns.toString();
-			// send to clojure
+			var results = "";
+			var i = 0;
+			do
+				{
+				// read all links
+				var conns = jsPlumb.getConnections({source:"window" + i});
+				results += conns[0].targetId.substring(6) + ",";
+				i = i + 1;
+				}
+			while (document.getElementById("window" + (i + 1)));
 
-		}
+			// debug:
+			// document.getElementById('messagearea2').value += ("results:" + results);
+
+			// send to clojure
+			var	jqxhr = $.post("/formularize", { c: results },
+				function(x) {
+					var r = 'in:' + results + '\n' + 'out:' + x + '\n';
+					document.getElementById('messagearea2').value += r
+				});
+			}
 
 		function makeboxes() {
 			d = document.getElementById('messagearea2').value;
