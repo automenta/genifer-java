@@ -3,9 +3,9 @@ Web-front GUI for the logic engine Genifer:  http://code.google.com/p/genifer/
 You may look at the screen shots.
 
 To-do:
-1.  Re-direct Clojure's console output (stdout) to web page
-2.  Server has to serve images (eg PNG, JPG) not in text mode
-3.  NL tab: generate logic formula and send back to Clojure
-4.  NL tab: draw arrow heads instead of dots (may need low-level javascript)
-5.  P(Z) tab: Display fuzzy-probabilistic distributions
-6.  Use 100% of screen height
+*  Re-direct Clojure's console output (stdout) to web page
+*  NL tab: replace numbers in formula with corresponding words
+*  P(Z) tab: Display fuzzy-probabilistic distributions
+*  NL tab: draw arrow heads instead of dots (may need low-level javascript)
+*  Use 100% of screen height
+*  Server has to serve images (eg PNG, JPG) not in text mode

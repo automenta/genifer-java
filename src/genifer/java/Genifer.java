@@ -32,8 +32,8 @@ public class Genifer {
         return RT.var("genifer.core", "repl1").invoke(t);
     }
 
-    Object formularize(String t) {
-        return RT.var("genifer.io", "formularize").invoke(t);
+    Object formularize(String t, String u) {
+        return RT.var("genifer.io", "formularize").invoke(t, u);
     }
 
 //    public void induce();

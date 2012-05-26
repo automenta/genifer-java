@@ -93,8 +93,9 @@ public class GeniferWeb extends Spark {
             public Object handle(Request rqst, Response rspns) {
                 rspns.header("Content-type", "text/html");
                 String c = rqst.queryParams("c").toString();
-                String r = genifer.formularize(c).toString();
-                r = r.replaceAll("\n", "<br/>");
+				String d = rqst.queryParams("d").toString();
+                String r = genifer.formularize(c, d).toString();
+                // r = r.replaceAll("\n", "<br/>");
                 return r;
             }
         });
@@ -108,7 +109,6 @@ public class GeniferWeb extends Spark {
                 rspns.header("Content-type", "text/html");
                 String c = rqst.queryParams("c").toString();
                 String r = genifer.eval(c).toString();
-                r = r.replaceAll("\n", "<br/>");
                 return r;
             }
         });
