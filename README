@@ -1,6 +1,6 @@
 Web-front GUI for the logic engine Genifer:  http://code.google.com/p/genifer/
 
-You may look at the screen shots.
+You may look at the cheat sheet and screen shots.
 
 To-do:
 *  Re-direct Clojure's console output (stdout) to web page
