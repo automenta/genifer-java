@@ -2,6 +2,13 @@ Web-front GUI for the logic engine Genifer:  http://code.google.com/p/genifer/
 
 You may look at the cheat sheet and screen shots.
 
+To test it quickly:
+1. git clone https://github.com/automenta/genifer-java.git
+2. cd genifer-java
+3. ant 
+4. java -jar  dist/genifer-java.jar
+5. open http://localhost:9090/
+
 To-do:
 *  Re-direct Clojure's console output (stdout) to web page
 *  NL tab: replace numbers in formula with corresponding words
