@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/CopyLibs/org-netbeans-modules-java-j2seproject-copylibstask.jar"/>
+	<classpathentry kind="lib" path="lib/genifer/genifer-1.1.0-standalone.jar"/>
+	<classpathentry kind="lib" path="lib/spark/jetty-webapp-7.3.0.v20110203.jar"/>
+	<classpathentry kind="lib" path="lib/spark/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="lib/spark/servlet-api-3.0.pre4.jar"/>
+	<classpathentry kind="lib" path="lib/spark/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/spark/slf4j-log4j12-1.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/spark/spark-0.9.9.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/velocity/velocity-1.7-dep.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
