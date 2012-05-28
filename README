@@ -5,14 +5,20 @@ You may look at the cheat sheet and screen shots.
 To test it quickly:
 1. git clone https://github.com/automenta/genifer-java.git
 2. cd genifer-java
-3. ant 
+3. run Ant or Maven
 4. java -jar  dist/genifer-java.jar
 5. open http://localhost:9090/
 
-To-do:
-*  Re-direct Clojure's console output (stdout) to web page
-*  NL tab: replace numbers in formula with corresponding words
+OR
+3. use Netbeans IDE
+4. run -> run main project
+5. open http://localhost:9090/
+
+Major to-do:
 *  P(Z) tab: Display fuzzy-probabilistic distributions
-*  NL tab: draw arrow heads instead of dots (may need low-level javascript)
+*  KB tab: manage KB contents, pretty-print and edit formulas in HTML
+
+Minor to-do:
+*  Re-direct Clojure's console output (stdout) to web page
 *  Use 100% of screen height
 *  Server has to serve images (eg PNG, JPG) not in text mode
