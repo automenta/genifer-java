@@ -1,72 +1,99 @@
-function TokenController($scope, $http) {
+!function(angular) {
 
-	var canvas = document.getElementById("canvas"),
-		width = $(canvas).width(),
-		height = $(canvas).height(),
-		diagrams = [], timeout = 0;
-	
-	$scope.tokens = [];
-	$scope.logic = "";
-	$scope.formular = "";
-	
-	$scope.$watch("logic", function(newVal, oldVal) {
-		var arr = [], prev,
-			pos = {	y: height/2 - 12, x: 32 };;
-		
-		if (newVal) arr = newVal.split(" ");
-		
-		// Set the value to scope
-		arr = $.grep(arr, function(n) { return n; });
-		$scope.tokens = arr;
+	var geniferApp = angular.module("geniferApp", []);
 
-		for(var i = 0; i < arr.length; i++) {	
-			token = arr[i];
-			if(diagrams[i] == undefined) {
-				diagrams[i] = new Diagram({
-					canvas: canvas,
-					token: token
-				});
-				diagrams[i].addEndPoint("#ccc");
-				if(i > 0) {
-					var prev = diagrams[i - 1];
-					var prevPos = prev.getPosition();
-					diagrams[i].connect(prev); // Connect to previous diagram
-					pos.x = prevPos.x + prev.getWidth() + 64; // Calculate the offset
-					pos.y = prevPos.y;
-				}
-				diagrams[i].setPosition(pos);
+	geniferApp.service("pubsub", ["$rootScope", function($rootScope) {
+		return {
+		    pub: function(name, parameters) {
+		        $rootScope.$emit(name, parameters);
+		    },
+		    sub: function(name, listener) {
+		        $rootScope.$on(name, listener);
+		    }
+		};
+	}]);
+
+	geniferApp.controller("TokenController", ["$scope", "$http", "pubsub", function ($scope, $http) {
+
+		var canvas = document.getElementById("canvas"),
+			diagrams = [], timeout = 0;
+
+		$scope.tokens = [];
+		$scope.logic = "";
+		$scope.formular = "";
+	
+		$scope.$on("updateFormula", function() {
+			// Update the formula
+			var postData;
+			if((postData = formularize(diagrams)) != false) {
+				clearTimeout(timeout);
+				timeout = setTimeout(function() {
+					$http({
+						method: "POST",
+						url: "/formularize",
+						data: $.param(postData),
+						headers: {"Content-Type": "application/x-www-form-urlencoded"}})
+						.success(function(data) {
+							$scope.formular = data;
+						});
+				}, 300);
 			}
-			diagrams[i].text(token);
-		}
+		});
+	
+		$scope.$watch("logic", function(newVal, oldVal) {
+			var arr = [], prev,
+				height = $(canvas).height(),
+				pos = {	y: height/2 - 12, x: 32 };
 		
-		// Remove the last node if the number of tokens changed
-		if(arr.length < diagrams.length) {
-			var diagram;
-			var offset = diagrams.length - arr.length;
-			for(var i = 0; i < offset; i++) {
-				diagram = diagrams.pop();
-				diagram.remove();
-			}
-		}
+			if (newVal) arr = newVal.split(" ");
 		
-		// Update the formula
-		var postData;
-		if((postData = formularize(diagrams)) != false) {
-			clearTimeout(timeout);
-			timeout = setTimeout(function() {
-				$http({
-					method: "POST",
-					url: '/formularize',
-					data: $.param(postData),
-					headers: {"Content-Type": "application/x-www-form-urlencoded"}})
-					.success(function(data) {
-						$scope.formular = data;
+			// Set the value to scope
+			arr = $.grep(arr, function(n) { return n; });
+			$scope.tokens = arr;
+
+			for(var i = 0; i < arr.length; i++) {	
+				token = arr[i];
+				if(diagrams[i] == undefined) {
+					diagrams[i] = new Diagram({
+						canvas: canvas,
+						token: token,
+						onChange: function() { $scope.$emit("updateFormula"); }
 					});
-			}, 300);
-		}
-	});
-}
+					diagrams[i].addEndPoint("#ccc");
+					if(i > 0) {
+						var prev = diagrams[i - 1];
+						var prevPos = prev.getPosition();
+						diagrams[i].connect(prev); // Connect to previous diagram
+						pos.x = prevPos.x + prev.getWidth() + 64; // Calculate the offset
+						pos.y = prevPos.y;
+					}
+					diagrams[i].setPosition(pos);
+				}
+				diagrams[i].text(token);
+			}
+		
+			// Remove the last node if the number of tokens changed
+			if(arr.length < diagrams.length) {
+				var diagram;
+				var offset = diagrams.length - arr.length;
+				for(var i = 0; i < offset; i++) {
+					diagram = diagrams.pop();
+					diagram.remove();
+				}
+			}
+		
+			$scope.$emit("updateFormula");
+		});
+	}]);
+}(angular);
 
+!function($) {
+	$().ready(function() {
+		$("#wrapper").layout();
+	});
+}(jQuery);
+
+// jsPlumb and Diagram
 !function(widnow, jsPlumb) {
 	
 	jsPlumb.importDefaults({
@@ -90,20 +117,20 @@ function TokenController($scope, $http) {
 		for(var i = 0; i < c.endpoints.length; i++) {
 			jsPlumb.deleteEndpoint(c.endpoints[i]);
 		}
-		jsPlumb.detach(c);
+		jsPlumb.detach(c);		
 	});
+	
+	jsPlumb.bind("jsPlumbConnection", function(c) { Diagram.onChange(c); });
+	jsPlumb.bind("jsPlumbConnectionDetached", function(c) { Diagram.onChange(c); });
 	
 	Diagram = function(options) {
 		
-		if(typeof(options) == "string") {
-			this.token = options;
-		} else if(typeof(options) == "object") {
-			this.token = options.token;
-		} else {
-			options = {};
-		}
+		var that = this;
 		
+		this.token = options.token || "";		
 		this.canvas = options.canvas || $("#canvas");
+		this.onChange = options.onChange;
+		this.maxConnections = options.maxConnections || 1;
 		this.el = $("<div></div>");
 		this.ep = $("<div class='ep'></div>");
 		this.label = $("<span></span>");
@@ -121,10 +148,15 @@ function TokenController($scope, $http) {
 			dropOptions: { hoverClass:"dragHover" },
 			anchor: "Continuous",
 			beforeDrop: function(params) { // Prevent element connect to itself
-				if(params.targetId == params.sourceId) return false;
+				var sourceConnections = jsPlumb.getConnections({ source: params.sourceId });
+				if(params.targetId == params.sourceId || sourceConnections.length >= that.maxConnections) {
+					return false;
+				}
 				return true;
 			}
 		});
+		
+		Diagram.instances[this.id] = this;
 	}
 
 	Diagram.prototype.addEndPoint = function(color) {
@@ -135,8 +167,7 @@ function TokenController($scope, $http) {
 				parent: p,
 				anchor:"Continuous",
 				connector: "Straight",
-				connectorStyle:{ strokeStyle: color, lineWidth: 4 },
-				maxConnections: -1
+				connectorStyle:{ strokeStyle: color, lineWidth: 4 }
 			});
 		});
 	};
@@ -193,6 +224,8 @@ function TokenController($scope, $http) {
 			}
 			jsPlumb.detach(c[i]);
 		}
+		Diagram.instances[this.id] = null;
+		delete Diagram.instances[this.id];
 		this.el.remove();
 		
 		delete this;
@@ -204,10 +237,19 @@ function TokenController($scope, $http) {
 		return this;
 	};
 	
+	Diagram.onChange = function(c) {
+		var instance = Diagram.instances[c.sourceId];
+		if(typeof(instance.onChange) != "function") {
+			return;
+		}
+		instance.onChange.call(instance, c);
+	};
+	
 	// Static properties
 	
 	Diagram.lastID = 0;
 	Diagram.getLastID = function() { return Diagram.lastID++; };
+	Diagram.instances = {};
 	
 	window.Diagram = Diagram;
 

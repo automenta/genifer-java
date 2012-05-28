@@ -42,11 +42,11 @@ public class GeniferWeb extends Spark {
     }
 
     public static String getStaticPage(String path) throws IOException {
-        if (staticpages.containsKey(path)) {
-            return staticpages.get(path);
-        }
+//        if (staticpages.containsKey(path)) {
+//            return staticpages.get(path);
+//        }
         String content = getLocalFile(new File("./web/" + path));
-        staticpages.put(path, content);
+//        staticpages.put(path, content);
         return content;
     }
 

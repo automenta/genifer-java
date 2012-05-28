@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" ng-app>
+<html lang="en">
 <head>
 	<meta charset="utf-8" />
 	<title>Genifer</title>
@@ -10,15 +10,15 @@
 	<script src="js/jquery.min.js"></script>
 	<script src="js/jquery-ui.min.js"></script>
 	<script src="js/jquery.jsPlumb-1.3.8-all-min.js"></script>
-	<script src="js/jquery.splitter.js"></script>
+	<script src="js/jquery.layout-min.js"></script>
 	<script src="js/angular.js"></script>
 	<script src="js/script.js"></script>
 	
 </head>
 
-<body>
+<body ng-app="geniferApp">
 	<div id="wrapper" class="theme-grey">
-		<div ng-controller="TokenController">
+		<div id="tokenCtrl" class="ui-layout-center" ng-controller="TokenController">
 			<div class="panel">
 				<div id="canvas"></div>
 				<div id="formular">{{formular}}</div>
@@ -28,6 +28,9 @@
 					</form>
 				</div>
 			</div>
+		</div>
+		<div id="kbCtrl" class="ui-layout-south">
+			<div class="panel">KB Management</div>
 		</div>
 	</div>
 
