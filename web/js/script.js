@@ -7,7 +7,7 @@ function TokenController($scope, $http) {
 	
 	$scope.tokens = [];
 	$scope.logic = "";
-	$scope.formular = "";
+	$scope.formula = "";
 	
 	$scope.$watch("logic", function(newVal, oldVal) {
 		var arr = [], prev,
@@ -60,7 +60,7 @@ function TokenController($scope, $http) {
 					data: $.param(postData),
 					headers: {"Content-Type": "application/x-www-form-urlencoded"}})
 					.success(function(data) {
-						$scope.formular = data;
+						$scope.formula = data;
 					});
 			}, 300);
 		}

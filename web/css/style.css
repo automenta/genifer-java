@@ -109,10 +109,10 @@ html, body {
 .theme-grey .ep:after {
 	color: #fcd700;
 	position: absolute;
-	content: "+";
+	content: "\0025CF";
 	font-size: 13px;
 	left: 4px;
-	top: 1px;
+	top: 0px;
 }
 .theme-grey .dragHover {
 	border: 1px solid #FCD700;
@@ -141,7 +141,7 @@ path { cursor:pointer; }
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
 }
-#formular {
+#formula {
 	color: #fcd700;
 	font-weight: bold;
 	background: rgba(0,0,0,0.25);
@@ -160,7 +160,7 @@ path { cursor:pointer; }
 	width: 100%;
 	z-index: 90;
 }
-#formular:before {
+#formula:before {
 	content: "> ";
 	color: #ccc;
 }
