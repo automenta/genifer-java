@@ -116,11 +116,10 @@ html, body {
 .theme-grey .ep:after {
 	color: #fcd700;
 	position: absolute;
-	content: "\0025CF";
+	content: "+";
 	font-size: 13px;
 	left: 4px;
 	top: 0px;
-<<<<<<< HEAD
 }
 .theme-grey .ui-layout-resizer {
 	position: relative;
@@ -150,8 +149,6 @@ html, body {
 .ui-layout-toggler-south,
 .ui-layout-toggler-north {
 	background: #FCD700;
-=======
->>>>>>> 889f63af1f7219ada4ae6460cc267d6e7e8560a3
 }
 .theme-grey .dragHover {
 	border: 1px solid #FCD700;
@@ -162,11 +159,7 @@ path { cursor:pointer; }
 
 #canvas {
 	width: 100%;
-<<<<<<< HEAD
 	height: 100%;
-=======
-	height: 720px;
->>>>>>> 889f63af1f7219ada4ae6460cc267d6e7e8560a3
 	overflow: hidden;
 }
 .unselectable {
@@ -184,7 +177,7 @@ path { cursor:pointer; }
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
 }
-#formula {
+#formular {
 	color: #fcd700;
 	font-weight: bold;
 	background: rgba(0,0,0,0.25);
@@ -203,7 +196,7 @@ path { cursor:pointer; }
 	width: 100%;
 	z-index: 90;
 }
-#formula:before {
+#formular:before {
 	content: "> ";
 	color: #ccc;
 }
