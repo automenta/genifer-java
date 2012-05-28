@@ -22,6 +22,7 @@
 		$scope.logic = "";
 		$scope.formular = "";
 	
+<<<<<<< HEAD
 		$scope.$on("updateFormula", function() {
 			// Update the formula
 			var postData;
@@ -39,6 +40,11 @@
 				}, 300);
 			}
 		});
+=======
+	$scope.tokens = [];
+	$scope.logic = "";
+	$scope.formula = "";
+>>>>>>> 889f63af1f7219ada4ae6460cc267d6e7e8560a3
 	
 		$scope.$watch("logic", function(newVal, oldVal) {
 			var arr = [], prev,
@@ -82,6 +88,7 @@
 				}
 			}
 		
+<<<<<<< HEAD
 			$scope.$emit("updateFormula");
 		});
 	}]);
@@ -90,6 +97,23 @@
 !function($) {
 	$().ready(function() {
 		$("#wrapper").layout();
+=======
+		// Update the formula
+		var postData;
+		if((postData = formularize(diagrams)) != false) {
+			clearTimeout(timeout);
+			timeout = setTimeout(function() {
+				$http({
+					method: "POST",
+					url: '/formularize',
+					data: $.param(postData),
+					headers: {"Content-Type": "application/x-www-form-urlencoded"}})
+					.success(function(data) {
+						$scope.formula = data;
+					});
+			}, 300);
+		}
+>>>>>>> 889f63af1f7219ada4ae6460cc267d6e7e8560a3
 	});
 }(jQuery);
 
