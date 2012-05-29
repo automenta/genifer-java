@@ -104,6 +104,11 @@ public class GeniferWeb extends Spark {
                         rspns.header("Content-type", "image/png");
                         getStaticBinaryFile(page, rspns.raw().getOutputStream());
                         return null;
+					} else if (page.endsWith(".ico")) {
+                        rspns.header("Content-type", "image/x-icon");
+
+                        getStaticBinaryFile(page, rspns.raw().getOutputStream());
+                        return null;
                     } else {
                         return getStaticTextFile(page);
                     }
