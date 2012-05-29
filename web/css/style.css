@@ -116,9 +116,9 @@ html, body {
 .theme-grey .ep:after {
 	color: #fcd700;
 	position: absolute;
-	content: "+";
-	font-size: 13px;
-	left: 4px;
+	content: "\002022";
+	font-size: 17px;
+	left: 5px;
 	top: 0px;
 }
 .theme-grey .ui-layout-resizer {
