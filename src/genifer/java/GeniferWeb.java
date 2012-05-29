@@ -76,10 +76,8 @@ public class GeniferWeb extends Spark {
 
             @Override
             public Object handle(Request rqst, Response rspns) {
-                rspns.header("Content-type", "text/html");
 
-
-                String url = rqst.pathInfo();
+            	String url = rqst.pathInfo();
                 String page = "index.html";
                 if (!url.equals("/")) {
                     String xpage = url.substring(url.indexOf("/") + 1);
@@ -101,20 +99,20 @@ public class GeniferWeb extends Spark {
                         rspns.header("Content-type", "image/png");
                         getStaticBinaryFile(page, rspns.raw().getOutputStream());
                         return null;
-                    } else if (page.endsWith(".css")) {
-                        rspns.header("Content-type", "text/css");
-                        getStaticBinaryFile(page, rspns.raw().getOutputStream());
-                        return null;
-                    } else if (page.endsWith(".js")) {
-                        rspns.header("Content-type", "text/javascript");
+                    } else if (page.endsWith(".gif")) {
+                        rspns.header("Content-type", "image/gif");
                         getStaticBinaryFile(page, rspns.raw().getOutputStream());
                         return null;
 					} else if (page.endsWith(".ico")) {
                         rspns.header("Content-type", "image/x-icon");
                         getStaticBinaryFile(page, rspns.raw().getOutputStream());
                         return null;
-                    } else {
+                    } else if (page.endsWith(".html") || page.endsWith(".htm")) {
+                    	rspns.header("Content-type", "text/html");
                         return getStaticTextFile(page);
+                    } else {
+                    	getStaticBinaryFile(page, rspns.raw().getOutputStream());
+                        return null;
                     }
                 } catch (IOException ex) {
                     try {
