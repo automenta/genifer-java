@@ -7,6 +7,9 @@ html, body {
 .window, .panel {
 	position: relative;
 }
+a { color: #fff; }
+a:visited { color: #ccc; }
+a:hover { color: #fcd700; }
 .panel {
 	height: 100%;
 }
@@ -124,20 +127,10 @@ html, body {
 .theme-grey .ui-layout-resizer {
 	position: relative;
 	min-height: 6px;
-	border: 1px solid rgba(0,0,0,0.25);
-	border-bottom: 1px solid rgba(0,0,0,0.65);
+	min-width: 6px;
+	border: 1px solid rgba(0,0,0,0.5);
 	background: #cca;
-	background-color: #555;
-	background-image: -webkit-gradient(linear, left top, left bottom, from(#555), to(#333)); /* Saf4+, Chrome */
-	background-image: -webkit-linear-gradient(top, #555, #333); /* Chrome 10+, Saf5.1+, iOS 5+ */
-	background-image: -moz-linear-gradient(top, #555, #333); /* FF3.6+ */
-	background-image: -ms-linear-gradient(top, #555, #333); /* IE10 */
-	background-image: -o-linear-gradient(top, #555, #333); /* Opera 11.10+ */
-	background-image: linear-gradient(to bottom, #555, #333);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
-	-o-box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
-	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
-	-moz-box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+	background-color: #444;
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
@@ -146,9 +139,31 @@ html, body {
 .theme-grey .ui-layout-resizer:hover {
 	background: rgba(252,215,0,0.5);
 }
+.ui-layout-resizer-east,
+.ui-layout-resizer-west {
+	box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 1px 0 0 rgba(255,255,255,0.35);
+	-o-box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 1px 0 0 rgba(255,255,255,0.35);
+	-webkit-box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 1px 0 0 rgba(255,255,255,0.35);
+	-moz-box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 1px 0 0 rgba(255,255,255,0.35);
+}
+.ui-layout-resizer-south,
+.ui-layout-resizer-north {
+	box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+	-o-box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+	-webkit-box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+	-moz-box-shadow: 0px 0 3px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+}
 .ui-layout-toggler-south,
-.ui-layout-toggler-north {
-	background: #FCD700;
+.ui-layout-toggler-north,
+.ui-layout-toggler-west,
+.ui-layout-toggler-east {
+	background: #333;
+	border-top: 1px solid #222;
+	border-bottom: 1px solid #999;
+	box-shadow: inset 0 0 1px rgba(0,0,0,0.35);
+	-o-box-shadow: inset 0 0 1px rgba(0,0,0,0.35);
+	-webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.35);
+	-moz-box-shadow: inset 0 0 1px rgba(0,0,0,0.35);
 }
 .theme-grey .dragHover {
 	border: 1px solid #FCD700;
@@ -191,7 +206,7 @@ path { cursor:pointer; }
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
-	top: 0;
+	bottom: 49px;
 	left: 0;
 	width: 100%;
 	z-index: 90;
@@ -200,24 +215,76 @@ path { cursor:pointer; }
 	content: "> ";
 	color: #ccc;
 }
-#formula:after {
-	content: "|";
-	text-decoration:blink;
-}
 #input-logic {
 	width: 100%;
 }
 #tokenCtrl {
 	overflow: hidden;
-	min-height: 10%;
-	max-height: 90%;
-	height: 90%;
+	width: 80%;
 }
-#kbCtrl {
-	min-height: 10%;
-	max-height: 50%;
-	height: 10%;
+#prioritizeCtrl {
+	width: 20%;
 }
+.ui-tabs { position: relative; zoom: 1; } /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+.ui-tabs .ui-tabs-nav {
+	margin: 0; position: absolute; top: 0; left: 0; width: 100%; height: 38px; z-index: 2;
+	padding: 4px 0 0 42px;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+}
+.ui-tabs .ui-tabs-nav:before {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 36px;
+	height: 36px;
+	content: "";
+	background: url(../img/genifer_logo.png) 50% 1px no-repeat;
+}
+.ui-tabs .ui-tabs-nav li {
+	list-style: none; float: left; position: relative; top: 1px; margin: 0 0 0 8px; padding: 0; white-space: nowrap;
+}
+.ui-tabs .ui-tabs-nav li a { float: left; padding: 3px 12px; text-decoration: none; font-weight: bold; }
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+	margin-bottom: 0;
+	border: 1px solid #333;
+	background: #3c3c3c	;
+	-webkit-border-radius: 32px;
+	-moz-border-radius: 32px;
+	border-radius: 32px;
+	-webkit-background-clip: padding-box; /* fix the background bleeding edge */
+	-moz-background-clip: padding-box;
+	background-clip: padding-box;
+	box-shadow: inset 0px 1px 3px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.35);
+	-o-box-shadow: inset 0px 1px 3px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.35);
+	-webkit-box-shadow: inset 0px 1px 3px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.35);
+	-moz-box-shadow: inset 0px 1px 3px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.35);
+	text-shadow: 0 -1px 0 rgba(0,0,0,0.65);
+}
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a { color: #fff; }
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
+.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
+.ui-tabs .ui-tabs-panel {
+	display: block; border-width: 0; background: none; height: 100%;
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */
+	z-index: 1;
+}
+.ui-tabs .ui-tabs-hide { display: none !important; }
+.ui-tabs-content { height: 100%; }
+
+/* Layout helpers
+----------------------------------*/
+.ui-helper-hidden { display: none; }
+.ui-helper-hidden-accessible { position: absolute !important; clip: rect(1px 1px 1px 1px); clip: rect(1px,1px,1px,1px); }
+.ui-helper-reset { margin: 0; padding: 0; border: 0; outline: 0; line-height: 1.3; text-decoration: none; font-size: 100%; list-style: none; }
+.ui-helper-clearfix:before, .ui-helper-clearfix:after { content: ""; display: table; }
+.ui-helper-clearfix:after { clear: both; }
+.ui-helper-clearfix { zoom: 1; }
+.ui-helper-zfix { width: 100%; height: 100%; top: 0; left: 0; position: absolute; opacity: 0; filter:Alpha(Opacity=0); }
+
 @-webkit-keyframes glowing {
 	0% { -webkit-box-shadow: 0 1px 1px rgba(252, 215, 0, 0.75), inset 0 1px 0 rgba(255,255,255,0.35); }
 	50% { -webkit-box-shadow: 0 1px 6px rgba(252, 215, 0, 0.75), inset 0 1px 0 rgba(255,255,255,0.35); }

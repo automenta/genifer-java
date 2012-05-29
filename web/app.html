@@ -17,19 +17,39 @@
 
 <body ng-app="geniferApp">
 	<div id="wrapper" class="theme-grey">
-		<div id="tokenCtrl" class="ui-layout-center" ng-controller="TokenController">
-			<div class="panel">
-				<div id="canvas"></div>
-				<div id="formula">{{formula}}</div>
-				<div class="window action">
-					<form name="panelForm">
-						<input id="input-logic" name="logic" type="text" placeholder="Logic" ng-model="logic" />
-					</form>
+		<ul class="window">
+			<li><a href="#tabs-1">KB</a></li>
+			<li><a href="#tabs-2">Natural Lang</a></li>
+			<li><a href="#tabs-3">Forward</a></li>
+			<li><a href="#tabs-4">Backward</a></li>
+		</ul>
+		<div class="ui-tabs-content" id="tabs-1">
+			<!-- KB -->
+		</div>
+		<div class="ui-tabs-content" id="tabs-2">
+			<div id="tokenCtrl" class="ui-layout-center" ng-controller="TokenController">
+				<div class="panel">
+					<div id="canvas"></div>
+					<div id="formula">{{formula}}</div>
+					<div class="window action">
+						<form name="panelForm">
+							<input id="input-logic" name="logic" type="text" placeholder="Logic" ng-model="logic" />
+						</form>
+					</div>
 				</div>
 			</div>
+			<div id="prioritizeCtrl" class="ui-layout-east">
+				<div class="panel"><!-- Prioritize --></div>
+			</div>
+			<div id="prioritizeCtrl" class="ui-layout-east">
+				<div class="panel"><!-- Prioritize --></div>
+			</div>
 		</div>
-		<div id="kbCtrl" class="ui-layout-south">
-			<div class="panel">KB Management</div>
+		<div class="ui-tabs-content" id="tabs-3">
+			<!-- KB -->
+		</div>
+		<div class="ui-tabs-content" id="tabs-4">
+			<!-- KB -->
 		</div>
 	</div>
 

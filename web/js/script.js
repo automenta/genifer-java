@@ -89,7 +89,9 @@
 
 !function($) {
 	$().ready(function() {
-		$("#wrapper").layout();
+		var layout = $("#tabs-2").layout();
+		layout.sizePane("east", 300);
+		$("#wrapper").tabs();
 	});
 }(jQuery);
 
