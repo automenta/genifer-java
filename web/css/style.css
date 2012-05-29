@@ -177,7 +177,7 @@ path { cursor:pointer; }
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
 }
-#formular {
+#formula {
 	color: #fcd700;
 	font-weight: bold;
 	background: rgba(0,0,0,0.25);
@@ -196,11 +196,11 @@ path { cursor:pointer; }
 	width: 100%;
 	z-index: 90;
 }
-#formular:before {
+#formula:before {
 	content: "> ";
 	color: #ccc;
 }
-#formular:after {
+#formula:after {
 	content: "|";
 	text-decoration:blink;
 }

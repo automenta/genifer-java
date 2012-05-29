@@ -20,7 +20,7 @@
 
 		$scope.tokens = [];
 		$scope.logic = "";
-		$scope.formular = "";
+		$scope.formula = "";
 	
 		$scope.$on("updateFormula", function() {
 			// Update the formula
@@ -34,7 +34,7 @@
 						data: $.param(postData),
 						headers: {"Content-Type": "application/x-www-form-urlencoded"}})
 						.success(function(data) {
-							$scope.formular = data;
+							$scope.formula = data;
 						});
 				}, 300);
 			}
