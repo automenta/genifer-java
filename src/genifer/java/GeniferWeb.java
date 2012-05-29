@@ -73,11 +73,6 @@ public class GeniferWeb extends Spark {
                 System.out.println(rqst.pathInfo());
                 System.out.println(rqst.url() + " -> " + page);
 
-				if (page.endsWith(".jpg")) { rspns.header("Content-type", "image/jpg"); }
-				if (page.endsWith(".png")) { rspns.header("Content-type", "image/png"); }
-				if (page.endsWith(".html")) { rspns.header("Content-type", "text/html"); }
-				if (page.endsWith(".htm")) { rspns.header("Content-type", "text/html"); }
-
                 try {
                     return getStaticPage(page);
                 } catch (IOException ex) {
