@@ -111,8 +111,7 @@ public class GeniferWeb extends Spark {
                     	rspns.header("Content-type", "text/html");
                         return getStaticTextFile(page);
                     } else {
-                    	getStaticBinaryFile(page, rspns.raw().getOutputStream());
-                        return null;
+                    	return getStaticTextFile(page);
                     }
                 } catch (IOException ex) {
                     try {
