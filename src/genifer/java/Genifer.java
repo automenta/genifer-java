@@ -36,6 +36,10 @@ public class Genifer {
         return RT.var("genifer.io", "formularize").invoke(t, u);
     }
 
+    Object getFormula(String t) {
+        return RT.var("genifer.io", "send-formula").invoke(t);
+    }
+
 //    public void induce();
 //    public void abduce(String input);
 //    public void backwardChain(String query);

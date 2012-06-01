@@ -310,6 +310,13 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 			#messagearea2 {
                 width: 100%;
             }
+			#container1 {
+				height: 600px;
+				width: 95%;
+			}
+			#textFormulas{
+				-webkit-box-sizing: border-box;
+			}
         </style>
 
     </head>
@@ -319,10 +326,34 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 			<form>
 				<div id="tabs" class="tabs-bottom">
 					<ul>
+						<li><a href="#tabs-KB">KB</a></li>
 						<li><a href="#tabs-graph">Natural Lang</a></li>
 						<li><a href="#tabs-PZ">P(Z)</a></li>
+						<li><a href="#tabs-forward">Forward</a></li>
+						<li><a href="#tabs-learning">Learning</a></li>
 						<li><a href="#tabs-text">Console</a></li>
 					</ul>
+					<div id="tabs-KB">
+						<div id="container1">
+						<p  id="textFormulas" name="textFormulas">
+							some KB content here <br/>
+							some formulas
+						</p>
+						</div>
+						<input id="upbutton" type="button" onclick="pageUp();" value="▲" />
+						<input id="downbutton" type="button" onclick="pageDown();" value="▼" />
+						<input id="addbutton" type="button" onclick="addKB();" value="Add" />
+						<input id="deletebutton" type="button" onclick="deleteKB();" value="Delete" />
+						<input id="searchbutton" type="button" onclick="searchKB();" value="Search" />
+						<br/>
+						<p>
+							<textarea id="inputFormula" name="inputFormula" rows="2" cols="60" placeholder="input formula"></textarea>
+						</p>
+						<input id="editbutton" type="button" onclick="editKB();" value="Edit" />
+						<br/>
+						<br/>
+						<br/>
+					</div>
 					<div id="tabs-text">
 						<p>
 							<textarea id="messagearea" name="message" rows="2" cols="50" placeholder="input geniform"></textarea>

@@ -39,7 +39,7 @@
 				}, 300);
 			}
 		});
-	
+
 		$scope.$watch("logic", function(newVal, oldVal) {
 			var arr = [], prev,
 				height = $(canvas).height(),
@@ -71,7 +71,7 @@
 				}
 				diagrams[i].text(token);
 			}
-		
+
 			// Remove the last node if the number of tokens changed
 			if(arr.length < diagrams.length) {
 				var diagram;
@@ -81,7 +81,7 @@
 					diagram.remove();
 				}
 			}
-		
+
 			$scope.$emit("updateFormula");
 		});
 	}]);
@@ -114,21 +114,21 @@
 			EndpointStyle : { width:16, height:16, fillStyle: "#333", strokeStyle: "#333" },
 			Anchors : ["TopCenter", "TopCenter"]
 	});
-	
+
 	jsPlumb.bind("click", function(c) { // Click to detach
 		for(var i = 0; i < c.endpoints.length; i++) {
 			jsPlumb.deleteEndpoint(c.endpoints[i]);
 		}
 		jsPlumb.detach(c);		
 	});
-	
+
 	jsPlumb.bind("jsPlumbConnection", function(c) { Diagram.onChange(c); });
 	jsPlumb.bind("jsPlumbConnectionDetached", function(c) { Diagram.onChange(c); });
-	
+
 	Diagram = function(options) {
-		
+
 		var that = this;
-		
+
 		this.token = options.token || "";		
 		this.canvas = options.canvas || $("#canvas");
 		this.onChange = options.onChange;
@@ -144,7 +144,7 @@
 			.data("token", this.token)
 			.append(this.label).append(this.ep)
 			.appendTo(this.canvas);
-		
+
 		jsPlumb.draggable(this.id);
 		jsPlumb.makeTarget(this.el, {
 			dropOptions: { hoverClass:"dragHover" },
@@ -157,7 +157,7 @@
 				return true;
 			}
 		});
-		
+
 		Diagram.instances[this.id] = this;
 	}
 

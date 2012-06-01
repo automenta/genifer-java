@@ -123,17 +123,30 @@ public class GeniferWeb extends Spark {
                 return null;
             }
         });
-        
+
+        Route formula;
+        post(formula = new Route("/formula") {
+
+            @Override
+            public Object handle(Request rqst, Response rspns) {
+                rspns.header("Content-type", "text/html");
+                String c = rqst.queryParams("c").toString();	// index
+                String r = genifer.getFormula(c).toString();
+                return r;
+            }
+        });
+        get(formula);
+
         Route formularize;
         post(formularize = new Route("/formularize") {
 
             @Override
             public Object handle(Request rqst, Response rspns) {
                 rspns.header("Content-type", "text/html");
+				// c = list of links, d = list of words
                 String c = rqst.queryParams("c").toString();
                 String d = rqst.queryParams("d").toString();
                 String r = genifer.formularize(c, d).toString();
-                // r = r.replaceAll("\n", "<br/>");
                 return r;
             }
         });
