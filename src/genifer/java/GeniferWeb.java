@@ -71,6 +71,57 @@ public class GeniferWeb extends Spark {
 
         setPort(9090); // Spark will run on port 9090
        
+        Route formula;
+
+        post(formula = new Route("/formula") {
+            @Override
+            public Object handle(Request rqst, Response rspns) {
+                rspns.header("Content-type", "text/html");
+                String c = rqst.queryParams("c").toString();	// formula as JSON
+                String r = genifer.sendFormula(c).toString();
+                return r;		// ignore return value for now
+            }
+        });
+
+        get(formula = new Route("/formula/:id") {
+			@Override
+            public Object handle(Request rqst, Response rspns) {
+                rspns.header("Content-type", "text/html");
+                String id = rqst.params(":id").toString();		// index into KB
+                String r = genifer.getFormula(id).toString();
+                return r;
+            }
+
+		});
+
+        Route formularize;
+
+        post(formularize = new Route("/formularize") {
+            @Override
+            public Object handle(Request rqst, Response rspns) {
+                rspns.header("Content-type", "text/html");
+				// c = list of links, d = list of words
+                String c = rqst.queryParams("c").toString();
+                String d = rqst.queryParams("d").toString();
+                String r = genifer.formularize(c, d).toString();
+                return r;
+            }
+        });
+        get(formularize);
+
+        Route eval;
+
+        post(eval = new Route("/eval") {
+            @Override
+            public Object handle(Request rqst, Response rspns) {
+                rspns.header("Content-type", "text/html");
+                String c = rqst.queryParams("c").toString();
+                String r = genifer.eval(c).toString();
+                r = r.replaceAll("\n", "<br/>");
+                return r;
+            }
+        });
+        get(eval);
 
         get(new Route("/*") {
 
@@ -124,47 +175,5 @@ public class GeniferWeb extends Spark {
             }
         });
 
-        Route formula;
-        post(formula = new Route("/formula") {
-
-            @Override
-            public Object handle(Request rqst, Response rspns) {
-                rspns.header("Content-type", "text/html");
-                String c = rqst.queryParams("c").toString();	// index
-                String r = genifer.getFormula(c).toString();
-                return r;
-            }
-        });
-        get(formula);
-
-        Route formularize;
-        post(formularize = new Route("/formularize") {
-
-            @Override
-            public Object handle(Request rqst, Response rspns) {
-                rspns.header("Content-type", "text/html");
-				// c = list of links, d = list of words
-                String c = rqst.queryParams("c").toString();
-                String d = rqst.queryParams("d").toString();
-                String r = genifer.formularize(c, d).toString();
-                return r;
-            }
-        });
-        get(formularize);
-        
-        Route eval;
-        post(eval = new Route("/eval") {
-
-            @Override
-            public Object handle(Request rqst, Response rspns) {
-                rspns.header("Content-type", "text/html");
-                String c = rqst.queryParams("c").toString();
-                String r = genifer.eval(c).toString();
-                r = r.replaceAll("\n", "<br/>");
-                return r;
-            }
-        });
-        get(eval);
-
-    }
+	}
 }
