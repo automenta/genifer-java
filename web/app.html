@@ -9,19 +9,20 @@
 	
 	<script src="js/jquery.min.js"></script>
 	<script src="js/jquery-ui.min.js"></script>
+	<script src="js/jquery.flot.min.js"></script>
+	<script src="js/jstat-1.0.0.min.js"></script>
 	<script src="js/jquery.jsPlumb-1.3.8-all-min.js"></script>
 	<script src="js/jquery.layout-min.js"></script>
 	<script src="js/angular.js"></script>
-	<script src="js/script.js"></script>
 </head>
 
 <body ng-app="geniferApp">
 	<div id="wrapper" class="theme-grey">
 		<ul class="window">
-			<li><a href="#tabs-1">KB</a></li>
-			<li><a href="#tabs-2">Natural Lang</a></li>
-			<li><a href="#tabs-3">Forward</a></li>
-			<li><a href="#tabs-4">Backward</a></li>
+			<li><a class="unselectable" href="#tabs-1">KB</a></li>
+			<li><a class="unselectable" href="#tabs-2">Natural Lang</a></li>
+			<li><a class="unselectable" href="#tabs-3">Forward</a></li>
+			<li><a class="unselectable" href="#tabs-4">Backward</a></li>
 		</ul>
 		<div class="ui-tabs-content" id="tabs-1">
 			<!-- KB -->
@@ -38,20 +39,25 @@
 					</div>
 				</div>
 			</div>
-			<div id="prioritizeCtrl" class="ui-layout-east">
-				<div class="panel"><!-- Prioritize --></div>
-			</div>
-			<div id="prioritizeCtrl" class="ui-layout-east">
-				<div class="panel"><!-- Prioritize --></div>
+			<div id="prioritizeCtrl" class="ui-layout-east" ng-controller="prioritizeController">
+				<div class="panel">
+					<div class="inner">
+						<div id="plot"></div>
+						<div id="slider-horizontal"></div>
+						<div id="slider-vertical"></div>
+						<input id="pz-x" type="hidden" value="0" />
+						<input id="pz-y" type="hidden" value="50" />
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="ui-tabs-content" id="tabs-3">
-			<!-- KB -->
+			<!-- Forward -->
 		</div>
 		<div class="ui-tabs-content" id="tabs-4">
-			<!-- KB -->
+			<!-- Backward -->
 		</div>
 	</div>
-
+	<script src="js/script.js"></script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 html, body {
+	font-family: Arial, Helvetica, sans-serif;
 	font-size: 13px;
 	height: 100%;
 	letter-spacing: 1.3px;
@@ -201,6 +202,14 @@ path { cursor:pointer; }
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
 }
+#plot {
+	width: 280px;
+	height: 280px;
+	padding: 0;
+	position: relative;
+}
+	#plot .tickLabel { font-size: 12px; }
+	
 #formula {
 	color: #fcd700;
 	font-weight: bold;
@@ -229,15 +238,19 @@ path { cursor:pointer; }
 }
 #tokenCtrl {
 	overflow: hidden;
-	width: 80%;
+	width: 75%;
 }
 #prioritizeCtrl {
-	width: 20%;
+	width: 25%;
 }
+	#prioritizeCtrl	.inner { margin: 0 auto; width: 320px; height: 320px; position: relative; }
+	#prioritizeCtrl .panel { background: #333; padding: 68px 0 0 0;}
+	#slider-horizontal { width: 280px; position: absolute; bottom: 0; left: 0; z-index: 2; }
+	#slider-vertical { height: 280px; position: absolute; top: 0; right: 0; z-index: 2; }
 .ui-tabs { position: relative; zoom: 1; } /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
 .ui-tabs .ui-tabs-nav {
 	margin: 0; position: absolute; top: 0; left: 0; width: 100%; height: 38px; z-index: 2;
-	padding: 4px 0 0 42px;
+	padding: 0 0 0 118px;
 	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
 	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
 	box-sizing: border-box;         /* Opera/IE 8+ */
@@ -252,16 +265,30 @@ path { cursor:pointer; }
 	background: url(../img/genifer_logo.png) 50% 1px no-repeat;
 }
 .ui-tabs .ui-tabs-nav li {
-	list-style: none; float: left; position: relative; top: 1px; margin: 0 0 0 8px; padding: 0; white-space: nowrap;
+	list-style: none; 
+	float: left; 
+	position: relative;
+	top: 0; 
+	margin: 0; 
+	padding: 0;
+	border-left: 1px solid rgba(255,255,255,0.12);
+	border-right: 1px solid rgba(0,0,0,0.25);
+	white-space: nowrap;
 }
-.ui-tabs .ui-tabs-nav li a { float: left; padding: 3px 12px; text-decoration: none; font-weight: bold; }
+.ui-tabs .ui-tabs-nav li:first-child { border-left: none; }
+.ui-tabs .ui-tabs-nav li:last-child { border-right: none; }
+.ui-tabs .ui-tabs-nav li a {
+	float: left;
+	padding: 3px 12px; 
+	text-decoration: none;
+	font-weight: bold;
+	height: 30px;
+	line-height: 26px;
+}
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected {
 	margin-bottom: 0;
 	border: 1px solid #333;
 	background: #3c3c3c	;
-	-webkit-border-radius: 32px;
-	-moz-border-radius: 32px;
-	border-radius: 32px;
 	-webkit-background-clip: padding-box; /* fix the background bleeding edge */
 	-moz-background-clip: padding-box;
 	background-clip: padding-box;
@@ -293,6 +320,39 @@ path { cursor:pointer; }
 .ui-helper-clearfix:after { clear: both; }
 .ui-helper-clearfix { zoom: 1; }
 .ui-helper-zfix { width: 100%; height: 100%; top: 0; left: 0; position: absolute; opacity: 0; filter:Alpha(Opacity=0); }
+
+/* jQuery UI Slider 1.8.7 */
+.ui-slider {
+	position: relative; text-align: left; background: #d7d7d7;
+	-webkit-border-radius: 12px;
+	-moz-border-radius: 12px;
+	border-radius: 12px;	
+}
+.ui-slider { -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.5) inset; -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.5) inset; }
+.ui-slider .ui-slider-handle {
+	background: url(../img/slider_handles.png) 0px -23px no-repeat; 
+	position: absolute; z-index: 2;
+	width: 23px; 
+	height: 23px; 
+	cursor: default;
+	border: none;
+	outline: none; 
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+}
+.ui-slider  .ui-state-hover, .ui-slider  .ui-state-active { background-position: 0 0; }
+.ui-slider .ui-slider-range { background: #666; position: absolute; z-index: 1; font-size: .7em; display: block; border: 0; background-position: 0 0; }
+.ui-slider .ui-slider-range { -moz-box-shadow: 0 1px 2px rgba(51,51,51,0.6) inset; -webkit-box-shadow: 0 1px 2px rgba(51,51,51,0.6) inset; }
+.ui-slider-horizontal { height: 5px; }
+.ui-slider-horizontal .ui-slider-handle { top: -8px; margin-left: -13px; }
+.ui-slider-horizontal .ui-slider-range { top: 0; height: 100%; }
+.ui-slider-horizontal .ui-slider-range-min { left: 0; }
+.ui-slider-horizontal .ui-slider-range-max { right: 0; }
+.ui-slider-vertical { width: 5px; height: 100px; }
+.ui-slider-vertical .ui-slider-handle { left: -8px; margin-left: 0; margin-bottom: -13px; }
+.ui-slider-vertical .ui-slider-range { left: 0; width: 100%; }
+.ui-slider-vertical .ui-slider-range-min { bottom: 0; }
+.ui-slider-vertical .ui-slider-range-max { top: 0; }
 
 @-webkit-keyframes glowing {
 	0% { -webkit-box-shadow: 0 1px 1px rgba(252, 215, 0, 0.75), inset 0 1px 0 rgba(255,255,255,0.35); }

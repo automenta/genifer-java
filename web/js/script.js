@@ -12,8 +12,12 @@
 		    }
 		};
 	}]);
-
-	geniferApp.controller("TokenController", ["$scope", "$http", "pubsub", function ($scope, $http) {
+	
+	geniferApp.controller("prioritizeController", ["$scope", "pubsub", function ($scope, pubsub) {
+		
+	}]);
+	
+	geniferApp.controller("TokenController", ["$scope", "$http", "pubsub", function ($scope, $http, pubsub) {
 
 		var canvas = document.getElementById("canvas"),
 			diagrams = [], timeout = 0;
@@ -85,13 +89,55 @@
 			$scope.$emit("updateFormula");
 		});
 	}]);
+	
 }(angular);
 
 !function($) {
 	$().ready(function() {
+	
+		// jQuery Layout
 		var layout = $("#tabs-2").layout();
-		layout.sizePane("east", 300);
-		$("#wrapper").tabs();
+		layout.sizePane("east", 360);
+		
+		// Jstat
+		var numPoints = 100;
+		var paramValues = [0, 100];
+		var dist = new NormalDistribution(0, 20);
+		var plot = new DistributionPlot("plot", dist, dist.getRange(5, numPoints), {
+	    	grid: { color: "#777" }
+		});
+		plot.setFill(true);
+		
+		// jQuery UI Slider
+		$( "#slider-vertical" ).slider({
+			orientation: "vertical",
+			range: "min",
+			min: 0,
+			max: 100,
+			value: 50,
+			slide: function( event, ui ) {
+				$("#pz-y").val( ui.value );
+				paramValues[1] = ui.value;
+				dist = new NormalDistribution(paramValues[0], paramValues[1]);
+			    plot.setDistribution(dist, dist.getRange(5, numPoints));
+			}
+		});
+		$( "#slider-horizontal" ).slider({
+			orientation: "horizontal",
+			range: "min",
+			min: -100,
+			max: 100,
+			value: 0,
+			slide: function( event, ui ) {
+				$("#pz-x").val( ui.value );
+				paramValues[0] = ui.value;
+				dist = new NormalDistribution(paramValues[0], paramValues[1]);
+			    plot.setDistribution(dist, dist.getRange(5, numPoints));
+			}
+		});
+		
+		// jQuery UI Tabs
+		$("#wrapper").tabs();		
 	});
 }(jQuery);
 
