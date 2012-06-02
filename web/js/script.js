@@ -101,37 +101,50 @@
 		
 		// Jstat
 		var numPoints = 100;
-		var paramValues = [0, 100];
-		var dist = new NormalDistribution(0, 20);
+		var paramValues = [0.5, 0.003];
+		var dist = new BetaDistribution(41, 41);
 		var plot = new DistributionPlot("plot", dist, dist.getRange(5, numPoints), {
-	    	grid: { color: "#777" }
+	    	grid: { borderWidth: 0, labelMargin: 0, color: "#777",
+				markings: [ ], show: false },
+			legend: { show: false },
+			yaxis: { show: false,  ticks: [] }
 		});
 		plot.setFill(true);
-		
+
 		// jQuery UI Slider
 		$( "#slider-vertical" ).slider({
 			orientation: "vertical",
-			range: "min",
-			min: 0,
-			max: 100,
-			value: 50,
+			// range: "min",
+			step: 0.0005,
+			min: 0.0001,
+			max: 0.1,
+			value: 0.0971,
 			slide: function( event, ui ) {
 				$("#pz-y").val( ui.value );
-				paramValues[1] = ui.value;
-				dist = new NormalDistribution(paramValues[0], paramValues[1]);
+				var v = 0.1001 - ui.value;
+				paramValues[1] = v;
+				var m = paramValues[0];
+				var a = -m * (v + m * m - m) / v;
+				var b = (v + m * m - m)*(m - 1)/v;
+				dist = new BetaDistribution(a, b);
 			    plot.setDistribution(dist, dist.getRange(5, numPoints));
 			}
 		});
 		$( "#slider-horizontal" ).slider({
 			orientation: "horizontal",
-			range: "min",
-			min: -100,
-			max: 100,
-			value: 0,
+			// range: "min",
+			step: 0.01,
+			min: 0.0,
+			max: 1.0,
+			value: 0.5,
 			slide: function( event, ui ) {
 				$("#pz-x").val( ui.value );
-				paramValues[0] = ui.value;
-				dist = new NormalDistribution(paramValues[0], paramValues[1]);
+				var m = ui.value;
+				paramValues[0] = m;
+				var v = paramValues[1];
+				var a = -m * (v + m * m - m) / v;
+				var b = (v + m * m - m) * (m - 1) / v;
+				dist = new BetaDistribution(a, b);
 			    plot.setDistribution(dist, dist.getRange(5, numPoints));
 			}
 		});
