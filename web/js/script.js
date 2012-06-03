@@ -22,7 +22,7 @@ var numPoints = 100;
 				orientation: "horizontal",
 				// range: "min",
 				step: 0.01,
-				min: 0.11,
+				min: 0.0,
 				max: 1.0,
 				value: 0.5,
 				slide: function( event, ui ) {
@@ -46,11 +46,11 @@ var numPoints = 100;
 				// range: "min",
 				step: 0.0005,
 				min: 0.0001,
-				max: 0.1,
-				value: 0.0971,
+				max: 0.2,
+				value: 0.1971,
 				slide: function( event, ui ) {
-					var v = 0.1001 - ui.value;
-					scope.variance = v;
+					var v = 0.2001 - ui.value;
+					scope.variance = Math.round(v*1000)/1000;
 					var m = scope.mean;
 					var a = -m * (v + m * m - m) / v;
 					var b = (v + m * m - m)*(m - 1)/v;
@@ -61,12 +61,12 @@ var numPoints = 100;
 			});
 		}
 	});
-	
+
 	geniferApp.controller("prioritizeController", ["$scope", "pubsub", function ($scope, pubsub) {
 
 		$scope.mean = 0.5;
-		$scope.variance = 0.0971;
-		
+		$scope.variance = 0.003;
+
 		$scope.$watch("mean", function(newVal, oldVal) {
 			console.log(newVal);
 		});
@@ -157,7 +157,8 @@ var numPoints = 100;
 		// Jstat
 		dist = new BetaDistribution(41, 41);
 		plot = new DistributionPlot("plot", dist, dist.getRange(5, numPoints), {
-	    	grid: { color: "#777" }
+	    	grid: { color: "#777" },
+			legend: { show: false }
 		});
 		plot.setFill(true);
 		
