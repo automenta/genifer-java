@@ -78,9 +78,6 @@ var numPoints = 100;
 		$scope.mean = 0.5;
 		$scope.variance = 0.003;
 
-		$scope.$watch("mean", function(newVal, oldVal) {
-			console.log(newVal);
-		});
 	}]);
 	
 	geniferApp.controller("TokenController", ["$scope", "$http", "pubsub", function ($scope, $http, pubsub) {
@@ -168,7 +165,7 @@ var numPoints = 100;
 		// Jstat
 		dist = new BetaDistribution(41, 41);
 		plot = new DistributionPlot("plot", dist, dist.getRange(5, numPoints), {
-	    	grid: { color: "#999", backgroundColor: "#ffffff" },
+	    	grid: { color: "#999" },
 			markings: [ { color: "#ccc" } ],
 			legend: { show: false }
 		});
