@@ -27,8 +27,15 @@ var numPoints = 100;
 				value: 0.5,
 				slide: function( event, ui ) {
 					var m = ui.value;
-					scope.mean = m;
 					var v = scope.variance;
+					if (v > m - m*m)
+						{
+						if (m > 0.5)
+							m = 0.5 + sqrt(1-4*V);
+						else
+							m = 0.5 - sqrt(1-4*v);
+						}
+					scope.mean = m;
 					var a = -m * (v + m * m - m) / v;
 					var b = (v + m * m - m) * (m - 1) / v;
 					dist = new BetaDistribution(a, b);
@@ -44,14 +51,18 @@ var numPoints = 100;
 			$(element).slider({
 				orientation: "vertical",
 				// range: "min",
-				step: 0.0005,
+				step: 0.0001,
 				min: 0.0001,
 				max: 0.2,
 				value: 0.1971,
 				slide: function( event, ui ) {
 					var v = 0.2001 - ui.value;
-					scope.variance = Math.round(v*1000)/1000;
 					var m = scope.mean;
+					if (v < 0.0001)
+						v = 0.0001;
+					if (v > m - m*m)
+						v = m - m*m - 0.0001;
+					scope.variance = Math.round(v*10000)/10000;
 					var a = -m * (v + m * m - m) / v;
 					var b = (v + m * m - m)*(m - 1)/v;
 					dist = new BetaDistribution(a, b);
