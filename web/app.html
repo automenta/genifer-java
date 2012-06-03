@@ -43,10 +43,12 @@
 				<div class="panel">
 					<div class="inner">
 						<div id="plot"></div>
-						<div id="slider-horizontal"></div>
-						<div id="slider-vertical"></div>
-						<input id="pz-x" type="hidden" value="0" />
-						<input id="pz-y" type="hidden" value="50" />
+						<div id="slider-horizontal" pz-mean></div>
+						<div id="slider-vertical" pz-variance></div>
+					</div>
+					<div id="pz-indicator">
+						<label for="pz-x">Mean = {{mean}}</label>
+						<label for="pz-y">Variance = {{variance}}</label>
 					</div>
 				</div>
 			</div>

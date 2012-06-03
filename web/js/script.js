@@ -1,3 +1,6 @@
+var plot, dist;
+var numPoints = 100;
+
 !function(angular) {
 
 	var geniferApp = angular.module("geniferApp", []);
@@ -13,8 +16,60 @@
 		};
 	}]);
 	
+	geniferApp.directive("pzMean", function() {
+		return function(scope, element, attrs) {		
+			$(element).slider({
+				orientation: "horizontal",
+				// range: "min",
+				step: 0.01,
+				min: 0.11,
+				max: 1.0,
+				value: 0.5,
+				slide: function( event, ui ) {
+					var m = ui.value;
+					scope.mean = m;
+					var v = scope.variance;
+					var a = -m * (v + m * m - m) / v;
+					var b = (v + m * m - m) * (m - 1) / v;
+					dist = new BetaDistribution(a, b);
+				    plot.setDistribution(dist, dist.getRange(5, numPoints));
+					scope.$apply();
+				}
+			});
+		}
+	});
+	
+	geniferApp.directive("pzVariance", function() {
+		return function(scope, element, attrs) {
+			$(element).slider({
+				orientation: "vertical",
+				// range: "min",
+				step: 0.0005,
+				min: 0.0001,
+				max: 0.1,
+				value: 0.0971,
+				slide: function( event, ui ) {
+					var v = 0.1001 - ui.value;
+					scope.variance = v;
+					var m = scope.mean;
+					var a = -m * (v + m * m - m) / v;
+					var b = (v + m * m - m)*(m - 1)/v;
+					dist = new BetaDistribution(a, b);
+				    plot.setDistribution(dist, dist.getRange(5, numPoints));
+					scope.$apply();
+				}
+			});
+		}
+	});
+	
 	geniferApp.controller("prioritizeController", ["$scope", "pubsub", function ($scope, pubsub) {
+
+		$scope.mean = 0.5;
+		$scope.variance = 0.0971;
 		
+		$scope.$watch("mean", function(newVal, oldVal) {
+			console.log(newVal);
+		});
 	}]);
 	
 	geniferApp.controller("TokenController", ["$scope", "$http", "pubsub", function ($scope, $http, pubsub) {
@@ -100,54 +155,11 @@
 		layout.sizePane("east", 360);
 		
 		// Jstat
-		var numPoints = 100;
-		var paramValues = [0.5, 0.003];
-		var dist = new BetaDistribution(41, 41);
-		var plot = new DistributionPlot("plot", dist, dist.getRange(5, numPoints), {
-	    	grid: { borderWidth: 0, labelMargin: 0, color: "#777",
-				markings: [ ], show: false },
-			legend: { show: false },
-			yaxis: { show: false,  ticks: [] }
+		dist = new BetaDistribution(41, 41);
+		plot = new DistributionPlot("plot", dist, dist.getRange(5, numPoints), {
+	    	grid: { color: "#777" }
 		});
 		plot.setFill(true);
-
-		// jQuery UI Slider
-		$( "#slider-vertical" ).slider({
-			orientation: "vertical",
-			// range: "min",
-			step: 0.0005,
-			min: 0.0001,
-			max: 0.1,
-			value: 0.0971,
-			slide: function( event, ui ) {
-				$("#pz-y").val( ui.value );
-				var v = 0.1001 - ui.value;
-				paramValues[1] = v;
-				var m = paramValues[0];
-				var a = -m * (v + m * m - m) / v;
-				var b = (v + m * m - m)*(m - 1)/v;
-				dist = new BetaDistribution(a, b);
-			    plot.setDistribution(dist, dist.getRange(5, numPoints));
-			}
-		});
-		$( "#slider-horizontal" ).slider({
-			orientation: "horizontal",
-			// range: "min",
-			step: 0.01,
-			min: 0.0,
-			max: 1.0,
-			value: 0.5,
-			slide: function( event, ui ) {
-				$("#pz-x").val( ui.value );
-				var m = ui.value;
-				paramValues[0] = m;
-				var v = paramValues[1];
-				var a = -m * (v + m * m - m) / v;
-				var b = (v + m * m - m) * (m - 1) / v;
-				dist = new BetaDistribution(a, b);
-			    plot.setDistribution(dist, dist.getRange(5, numPoints));
-			}
-		});
 		
 		// jQuery UI Tabs
 		$("#wrapper").tabs();		

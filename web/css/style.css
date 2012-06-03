@@ -208,7 +208,7 @@ path { cursor:pointer; }
 	padding: 0;
 	position: relative;
 }
-	#plot .tickLabel { font-size: 12px; }
+	#plot .tickLabel { font-size: 12px; min-width: 32px;}
 	
 #formula {
 	color: #fcd700;
@@ -235,8 +235,9 @@ path { cursor:pointer; }
 	color: #ccc;
 }
 #input-logic {
-	font-size: 18px;
+	font-size: 16px;
 	font-weight: bold;
+	letter-spacing: 1.5px;
 	width: 100%;
 }
 #tokenCtrl {
@@ -246,10 +247,12 @@ path { cursor:pointer; }
 #prioritizeCtrl {
 	width: 25%;
 }
-	#prioritizeCtrl	.inner { margin: 0 auto; width: 320px; height: 320px; position: relative; }
+	#prioritizeCtrl	.inner { margin: 0 auto; width: 320px; height: 320px; position: relative; margin: 10px;}
 	#prioritizeCtrl .panel { background: #333; padding: 68px 0 0 0;}
 	#slider-horizontal { width: 280px; position: absolute; bottom: 0; left: 0; z-index: 2; }
 	#slider-vertical { height: 280px; position: absolute; top: 0; right: 0; z-index: 2; }
+	#pz-indicator { padding:10px; }
+		#pz-indicator label { display: block; font-size: 16px; margin: 0 0 8px 0;}
 .ui-tabs { position: relative; zoom: 1; } /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
 .ui-tabs .ui-tabs-nav {
 	margin: 0; position: absolute; top: 0; left: 0; width: 100%; height: 38px; z-index: 2;
