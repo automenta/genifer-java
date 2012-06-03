@@ -157,7 +157,8 @@ var numPoints = 100;
 		// Jstat
 		dist = new BetaDistribution(41, 41);
 		plot = new DistributionPlot("plot", dist, dist.getRange(5, numPoints), {
-	    	grid: { color: "#777" },
+	    	grid: { color: "#999", backgroundColor: "#ffffff" },
+			markings: [ { color: "#ccc" } ],
 			legend: { show: false }
 		});
 		plot.setFill(true);
