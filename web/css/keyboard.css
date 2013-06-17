@@ -1,0 +1,52 @@
+/* 
+    Document   : keyboard
+    Created on : Jun 1, 2013, 2:00:15 AM
+    Author     : Administrator
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+#keyboard {
+position: absolute;
+display: none;
+border: 1px solid #ccc;
+width: 560px;
+padding: 10px;
+cursor: move;
+}
+#spacebar input {
+width: 180px;
+margin: 0 auto;
+margin-left: 150px;
+}
+
+#shift, #shifton {
+width: 70px;
+text-align: left;
+}
+
+#row0_shift, #row1_shift, #row2_shift, #row3_shift {
+display: none;
+}
+
+#row0, #row0_shift {
+padding-left: 20px;
+}
+
+#row1, #row1_shift {
+padding-left: 60px;
+}
+
+#row2, #row2_shift {
+padding-left: 70px;
+}
+
+#shifton {
+border-left: 3px solid #000;
+border-top: 3px solid #000;
+}

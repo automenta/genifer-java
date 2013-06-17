@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=gb18030" />
+
+<title>YKY input form</title>
+
+<link href="css/jquery.treetable.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="css/jquery.treetable.theme.default.css" />
+<link href="css/keyboard.css" type="text/css" rel="stylesheet" />
+
+<style type="text/css">
+#div1 {width:1020px;height:60px;padding:2px;border:3px solid #33ff33;}
+#div2 {width:1020px;height:30px;padding:2px;border:3px solid #ff3333;}
+</style>
+
+<script>
+
+	function saveFile()
+	{
+		var clone = $("#context-menu").clone();
+		$("span", clone).remove();
+		$("tr", clone).removeAttr('class');
+		$("tr", clone).removeAttr('style');
+		var text1 = clone.html();
+		//console.log(text1);
+		var text2 = text1.replace(/\n/g, "");
+		text1 = text2.replace(/<\/tr>/g, "</tr>\n");
+		text2 = text1.slice(7, -8);			// remove <tbody></tbody>
+		var textFileAsBlob = new Blob([text2], {type:'text/plain'});
+		var fileNameToSaveAs = "phrase-table.txt";
+
+		var downloadLink = document.createElement("a");
+		downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+		downloadLink.download = fileNameToSaveAs;
+		downloadLink.click();
+	}
+
+	function loadFile()
+	{
+		var fileToLoad = document.getElementById("fileToLoad").files[0];
+
+		var fileReader = new FileReader();
+		fileReader.onload = function(fileLoadedEvent)
+			{
+			var text = fileLoadedEvent.target.result;
+			lines = text.split("\n");
+
+			lines.forEach(function(line, index, array){
+				
+				// Each line is already correctly labelled (self and parent),
+				// but we need to add: data-tt-branch='true'
+				line2 = line.replace("<tr ", "<tr data-tt-branch='true' ");
+				var newRow = jQuery(line2);
+				var cquoi = jQuery(newRow[0]);
+				
+				// Determine parent node of the row
+				parent = line2.match(/data-tt-parent-id='(n[0-9]*)'/);
+				if (parent == null)
+					parentNode = null;
+				else
+					parentNode = $("#context-menu").treetable("node", parent[1]);
+				// console.log(line2, parent);
+				
+				$("#context-menu").treetable("loadBranch", parentNode, cquoi);
+				});
+
+			$("#context-menu tbody tr").mousedown(function() {
+				$("tr.selected").removeClass("selected");
+				$(this).addClass("selected");
+				});
+
+			$("#context-menu tbody tr").dblclick(function() {
+				var selection = $(this)[0].cells[0];
+				if (selection.innerHTML.slice(-4) != "</b>") {
+					textNode = document.createElement('span');
+					textNode.id = 'word_' + word_index;
+					++word_index;
+					// allow dragging for words
+					textNode.draggable = true;
+					textNode.ondragstart = drag;
+					textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
+					document.getElementById("div1").appendChild(textNode);
+					}
+				});
+
+			$("#context-menu").treetable("collapseAll");
+
+			};
+
+		fileReader.readAsText(fileToLoad, "UTF-8");
+	}
+
+  window.addEventListener('DOMContentLoaded', splitWords, false);
+
+  function splitWords() {
+
+    var elems = document.querySelectorAll('.draggable'),
+        text,
+        textNode,
+        words,
+        elem;
+
+    // iterate through all .draggable elements
+    for (var i = 0, l = elems.length; i < l; i++) {
+
+        elem = elems[i];
+        textNode = elem.childNodes[0];
+        text = textNode.nodeValue;
+
+        // remove current text node
+        elem.removeChild(textNode);
+        words = text.split(' ');
+
+      // iterate through words
+      for (var k = 0, ll = words.length; k < ll; k++) {
+         // create node for all words
+         textNode = document.createElement('span');
+         textNode.id = 'word_A' + i + k;
+         // allow dragging for words
+         textNode.draggable = true;
+         textNode.ondragstart = drag;
+         textNode.appendChild(document.createTextNode(words[k] + ' '));
+         elem.appendChild(textNode);
+      }
+    }
+
+	//document.body.innerHTML += "<a id='saver' href='data:text;charset=utf-8," +
+	//	encodeURIComponent(document.getElementById("context-menu").innerHTML) +
+	//	"'>phrase-table.txt</a>";
+	//document.getElementById("saver").click();
+
+	document.getElementById("send-green").addEventListener("click", function() {
+		str = document.getElementById("div1").textContent;
+		str = str.replace(/[()]/g, "");
+
+		window.postMessage({ type: "FROM_PAGE", text: str }, "*");
+		// console.log("I'm sending something");
+		}, false);
+
+	document.getElementById("send-white").addEventListener("click", quicksend, false);
+
+	document.getElementById("one-line").onkeypress = function(e) {
+		if (!e) e = window.event;
+		var keyCode = e.keyCode || e.which;
+		if (keyCode == '13') {						// Enter pressed
+			quicksend();
+			return false;
+			}
+		}
+
+	function quicksend() {
+		str = document.getElementById("one-line").value;
+
+		window.postMessage({ type: "FROM_PAGE", text: str }, "*");
+		}
+
+	document.getElementById("clear-white").addEventListener("click", function() {
+		document.getElementById("one-line").value = "";
+		}, false);
+
+	document.getElementById("clear-green1-L").addEventListener("click", function() {
+		var node = document.getElementById("div1");
+		node.removeChild(node.firstChild);
+		}, false);
+
+	document.getElementById("clear-green1-R").addEventListener("click", function() {
+		var node = document.getElementById("div1");
+		node.removeChild(node.lastChild);
+		}, false);
+
+	document.getElementById("clear-green").addEventListener("click", function() {
+		var node = document.getElementById("div1");
+		while (node.hasChildNodes()) {
+		    node.removeChild(node.lastChild);
+			}
+		}, false);
+
+	document.getElementById("clear-red").addEventListener("click", function() {
+		var node = document.getElementById("div2");
+		while (node.hasChildNodes()) {
+		    node.removeChild(node.lastChild);
+			}
+		}, false);
+
+	document.getElementById("smile").addEventListener("click", function() {
+		document.getElementById("one-line").value += ":)";
+		}, false);
+
+	document.getElementById("quotes").addEventListener("click", function() {
+		str = document.getElementById("one-line").value;
+		document.getElementById("one-line").value = "「" + str + "」";
+		}, false);
+
+	document.getElementById("send-up").addEventListener("click", function() {
+		str = document.getElementById("one-line").value;
+		words = str.split(" ");
+		words.forEach(function(word, i, array){
+			// wrap () around all words
+			word2 = "(" + word + ")";
+			// make words draggable
+	        // create node for all words
+		    textNode = document.createElement('span');
+			textNode.id = 'word_' + word_index;
+			++word_index;
+			// allow dragging for words
+			textNode.draggable = true;
+			textNode.ondragstart = drag;
+			textNode.appendChild(document.createTextNode(word2));
+			document.getElementById("div1").appendChild(textNode);
+			});
+		}, false);
+
+	document.getElementById("send-down").addEventListener("click", function() {
+		str = document.getElementById("div1").textContent;
+		str = str.replace(/[()]/g, "");
+
+		document.getElementById("one-line").value += str;
+		}, false);
+
+	document.getElementById("voov").addEventListener("click", function() {
+		window.postMessage({ type: "CHAT_ROOM", text: "voov" }, "*");
+		}, false);
+
+	document.getElementById("adult").addEventListener("click", function() {
+		window.postMessage({ type: "CHAT_ROOM", text: "adult" }, "*");
+		}, false);
+
+
+	// *********** Functions for manipulating context menu ***********
+
+	document.getElementById("insert").addEventListener("click", function() {
+		str = document.getElementById("div1").textContent;
+		str = str.replace(/[()]/g, "");
+
+		// Determine the selected row's parent ID, we insert to same parent
+		parentId = $("tr.selected")[0].getAttribute("data-tt-parent-id");
+		parentNode = $("#context-menu").treetable("node", parentId);
+
+		nodeId = node_index.toString();
+		text = "<tr data-tt-branch='true' data-tt-id='" + nodeId +
+				"' data-tt-parent-id='" + parentId	+ "'><td>" + str + "</td></tr>";
+		++node_index;
+		var newRow = jQuery(text);
+		var cquoi = jQuery(newRow[0]);
+
+		$("#context-menu").treetable("loadBranch", parentNode, cquoi);
+
+		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").mousedown(function() {
+			$("tr.selected").removeClass("selected");
+			$(this).addClass("selected");
+			});
+
+		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").dblclick(function() {
+			var selection = $(this)[0].cells[0];
+			if (selection.innerHTML.slice(-4) != "</b>") {
+				textNode = document.createElement('span');
+				textNode.id = 'word_' + word_index;
+				++word_index;
+				// allow dragging for words
+				textNode.draggable = true;
+				textNode.ondragstart = drag;
+				textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
+				document.getElementById("div1").appendChild(textNode);
+				}
+			});
+
+		}, false);
+
+	document.getElementById("delete").addEventListener("click", function() {
+		// This background color means the row will be deleted upon save
+		$("tr.selected")[0].setAttribute("bgColor", "#555555");
+		}, false);
+
+	document.getElementById("change").addEventListener("click", function() {
+		str = "";
+		children = document.getElementById("div1").children;
+		for (i = 0, l = children.length; i < l; ++i) {
+			str += children[i].innerText.slice(1,-1) + " ";
+			}
+
+		innerHTML = $("tr.selected td")[0].innerHTML;
+		innerHTML = innerHTML.slice(0, innerHTML.indexOf("</span>") + 7) + str;
+		$("tr.selected td")[0].innerHTML = innerHTML;
+		}, false);
+
+	document.getElementById("to-head").addEventListener("click", function() {
+		obj = $("tr.selected td")[0];
+		innerHTML = obj.innerHTML;
+		span_index = innerHTML.indexOf("</span>") + 7;
+		span = innerHTML.slice(0, span_index);
+		text = innerHTML.slice(span_index);
+		if (text.slice(0,3) == "<b>")
+			obj.innerHTML = span + text.slice(3,-4);
+		else
+			obj.innerHTML = span + "<b>" + text + "</b>";
+		}, false);
+
+	document.getElementById("add-child").addEventListener("click", function() {
+		// Determine the selected row's ID, we insert to it
+		parentId = $("tr.selected")[0].getAttribute("data-tt-id");
+		parentNode = $("#context-menu").treetable("node", parentId);
+
+		nodeId = node_index.toString();
+		text = "<tr data-tt-branch='true' data-tt-id='" + nodeId +
+				"' data-tt-parent-id='" + parentId	+ "'><td>" + "____" + "</td></tr>";
+		++node_index;
+		var newRow = jQuery(text);
+		var cquoi = jQuery(newRow[0]);
+
+		$("#context-menu").treetable("loadBranch", parentNode, cquoi);
+
+		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").mousedown(function() {
+			$("tr.selected").removeClass("selected");
+			$(this).addClass("selected");
+			});
+
+		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").dblclick(function() {
+			var selection = $(this)[0].cells[0];
+			if (selection.innerHTML.slice(-4) != "</b>") {
+				textNode = document.createElement('span');
+				textNode.id = 'word_' + word_index;
+				++word_index;
+				// allow dragging for words
+				textNode.draggable = true;
+				textNode.ondragstart = drag;
+				textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
+				document.getElementById("div1").appendChild(textNode);
+				}
+			});
+
+		}, false);
+  }
+
+function allowDrop(ev)
+{
+ev.preventDefault();
+}
+
+function drag(ev)
+{
+ev.dataTransfer.setData("Text",ev.target.id);
+  console.log('targetid: ' + ev.target.id);
+}
+
+function drop(ev)
+{
+ev.preventDefault();
+var data=ev.dataTransfer.getData("Text");
+ev.target.appendChild(document.getElementById(data));
+  console.log("dropped onto: " + ev.target.id);
+}
+
+</script>
+
+<style type="text/css">
+body {
+font-size: 50%;
+font-family: "Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+padding-top: 0px;
+background-color: #000000;
+color: #ccffff;
+}
+label { display: block; margin-top: 10px; }
+input {font-size: 60%; font-weight: bold; }
+#login { width: 300px; margin: 0 auto; border: 1px solid #eee; padding: 25px; background-color: #FFFFCC; }
+a { color: #0066CC; text-decoration: none; border-bottom: 1px dotted #0066cc; }
+#submit_butt { margin-top: 15px; }
+h3 { margin-top: 0; }
+</style>
+
+</head>
+
+<body>
+<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+<!-- div id="drag1" class="draggable">(喜歡) (玩) (網愛) (嗎)</div -->
+
+<input type="text" name="OneLine" id="one-line" size="108" value=""><br>
+<input type="submit" value="type" id="send-white" style="color: #ffffff;">
+<input type="submit" value="green" id="send-green" style="color: #00bb00;">
+<input type="submit" value="up" id="send-up">
+<input type="submit" value="down" id="send-down">
+<input type="submit" value="X" id="clear-white" style="color: #ffffff;">
+<input type="submit" value="<x" id="clear-green1-L" style="color: #33ff33;">
+<input type="submit" value="x>" id="clear-green1-R" style="color: #33ff33;">
+<input type="submit" value="X" id="clear-green" style="color: #33ff33;">
+<input type="submit" value="X" id="clear-red" style="color: #ff3333;">
+<input type="submit" value=":)" id="smile">
+<input type="submit" value="「」" id="quotes">
+
+<input type="submit" value="+" id="insert" style="color: #3333ff;">
+<input type="submit" value="-" id="delete" style="color: #3333ff;">
+<input type="submit" value="+child" id="add-child" style="color: #3333ff;">
+<input type="submit" value="change" id="change" style="color: #3333ff;">
+<input type="submit" value="→head" id="to-head" style="color: #3333ff;">
+voov <input type="radio" name="group1" value="voov" id="voov" checked>
+<input type="radio" name="group1" value="adult" id="adult"> adult
+
+<table id="context-menu" class="treetable">
+<tbody>
+</tbody>
+</table>
+
+<!-- a href="#" id="showkeyboard" title="virtual keyboard">Keyboard</a-->
+
+<div id="keyboard">
+<div id="row0">
+<input name="accent" type="button" value="`">
+<input name="1" type="button" value="1">
+<input name="2" type="button" value="2">
+<input name="3" type="button" value="3">
+<input name="4" type="button" value="4">
+<input name="5" type="button" value="5">
+<input name="6" type="button" value="6">
+<input name="7" type="button" value="7">
+<input name="8" type="button" value="8">
+<input name="9" type="button" value="9">
+<input name="0" type="button" value="0">
+<input name=" - " type="button" value=" - ">
+<input name="=" type="button" value="=">
+<input name="backspace" type="button" value="Backspace">
+</div>
+<div id="row0_shift">
+<input name="tilde" type="button" value="~">
+<input name="exc" type="button" value="!">
+<input name="at" type="button" value="@">
+<input name="hash" type="button" value="#">
+<input name="dollar" type="button" value="$">
+<input name="percent" type="button" value="%">
+<input name="caret" type="button" value="^">
+<input name="ampersand" type="button" value="&">
+<input name="asterik" type="button" value="*">
+<input name="openbracket" type="button" value="(">
+<input name="closebracket" type="button" value=")">
+<input name="underscore" type="button" value="_">
+<input name="plus" type="button" value="+">
+<input name="backspace" type="button" value="Backspace">
+</div>
+
+<div id="row1">
+<input name="q" type="button" value="q">
+<input name="w" type="button" value="w">
+<input name="e" type="button" value="e">
+<input name="r" type="button" value="r">
+<input name="t" type="button" value="t">
+<input name="y" type="button" value="y">
+<input name="u" type="button" value="u">
+<input name="i" type="button" value="i">
+<input name="o" type="button" value="o">
+<input name="p" type="button" value="p">
+<input name="[" type="button" value="[">
+<input name="]" type="button" value="]">
+<input name="\" type="button" value="\">
+</div>
+
+<div id="row1_shift">
+<input name="Q" type="button" value="Q">
+<input name="W" type="button" value="W">
+<input name="E" type="button" value="E">
+<input name="R" type="button" value="R">
+<input name="T" type="button" value="T">
+<input name="Y" type="button" value="Y">
+<input name="U" type="button" value="U">
+<input name="I" type="button" value="I">
+<input name="O" type="button" value="O">
+<input name="P" type="button" value="P">
+<input name="{" type="button" value="{">
+<input name="}" type="button" value="}">
+<input name="|" type="button" value="|">
+</div>
+
+<div id="row2">
+<input name="a" type="button" value="a">
+<input name="s" type="button" value="s" autocomplete="off">
+<input name="d" type="button" value="d">
+<input name="f" type="button" value="f">
+<input name="g" type="button" value="g">
+<input name="h" type="button" value="h">
+<input name="j" type="button" value="j">
+<input name="k" type="button" value="k">
+<input name="l" type="button" value="l">
+<input name=";" type="button" value=";">
+<input name="’" type="button" value="’">
+</div>
+
+<div id="row2_shift">
+<input name="a" type="button" value="A">
+<input name="s" type="button" value="S" autocomplete="off">
+<input name="d" type="button" value="D">
+<input name="f" type="button" value="F">
+<input name="g" type="button" value="G">
+<input name="h" type="button" value="H">
+<input name="j" type="button" value="J">
+<input name="k" type="button" value="K">
+<input name="l" type="button" value="L">
+<input name=";" type="button" value=":">
+<input name="’" type="button" value="’"’">
+</div>
+
+<div id="row3">
+<input name="Shift" type="button" value="Shift" id="shift">
+<input name="z" type="button" value="z">
+<input name="x" type="button" value="x">
+<input name="c" type="button" value="c">
+<input name="v" type="button" value="v">
+<input name="b" type="button" value="b">
+<input name="n" type="button" value="n">
+<input name="m" type="button" value="m">
+<input name="," type="button" value=",">
+<input name="." type="button" value=".">
+<input name="/" type="button" value="/">
+</div>
+
+<div id="row3_shift">
+<input name="Shift" type="button" value="Shift" id="shifton">
+<input name="Z" type="button" value="Z">
+<input name="X" type="button" value="X">
+<input name="C" type="button" value="C">
+<input name="V" type="button" value="V">
+<input name="B" type="button" value="B">
+<input name="N" type="button" value="N">
+<input name="M" type="button" value="M">
+<input name="lt" type="button" value="<">
+<input name="gt" type="button" value=">">
+<input name="?" type="button" value="?">
+</div>
+
+<div id="spacebar">
+<input name="spacebar" type="button" value=" ">
+</div>
+
+</div>
+
+<script src="js/jquery-1.10.1.min.js"></script>
+<script src="js/jquery.treetable.js"></script>
+<script>
+
+	$("#context-menu").treetable({ expandable: true, clickableNodeNames: true });
+	console.log("so far so good");
+
+	var word_index = 0;
+	var node_index = 0;
+
+</script>
+
+<script type="text/javascript" src="js/jquery-ui-personalized-1.5.2.min.js"></script>
+<script type="text/javascript" src="js/jquery-fieldselection.js"></script>
+<script type="text/javascript" src="js/vkeyboard.js"></script>
+
+<div style="position:absolute;bottom:0;right:0;">
+<input type="file" id="fileToLoad" value="phrase-table.txt" width="50%">
+<a href="javascript:loadFile()">Load</a>
+<a href="javascript:saveFile()">Save</a>
+</div>
+
+</body>
+</html>
