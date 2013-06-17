@@ -7,12 +7,12 @@ To test it quickly:
 2. cd genifer-java
 3. run Ant or Maven
 4. java -jar  dist/genifer-java.jar
-5. open http://localhost:9090/
+5. open http://localhost:9090/app.html
 
 OR
 3. use Netbeans IDE
 4. run -> run main project
-5. open http://localhost:9090/
+5. open http://localhost:9090/app.html
 
 Major to-do:
 *  P(Z) tab: Display fuzzy-probabilistic distributions
