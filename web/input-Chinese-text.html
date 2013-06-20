@@ -2,29 +2,34 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=gb18030" />
-
 <title>YKY input form</title>
 
 <link href="css/jquery.treetable.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" href="css/jquery.treetable.theme.default.css" />
 <link href="css/keyboard.css" type="text/css" rel="stylesheet" />
 
-<style type="text/css">
-#div1 {width:1020px;height:60px;padding:2px;border:3px solid #33ff33;}
-#div2 {width:1020px;height:30px;padding:2px;border:3px solid #ff3333;}
-</style>
-
 <script>
+	// To-do:
+	// * Find a way to build word categories automatically
+	//	- process Roget's thesaurus
+
+	var suggestions = new Array();
 
 	function saveFile()
 	{
+		// File is a mix of HTML and plain text.  Format:
+		//		Headings are HTML <tr> lines
+		//		items are plain-text lines
 		var clone = $("#context-menu").clone();
+		// remove <span>, <class>, <style> decorations
 		$("span", clone).remove();
 		$("tr", clone).removeAttr('class');
 		$("tr", clone).removeAttr('style');
 		var text1 = clone.html();
-		//console.log(text1);
+		// console.log(text1);
+		// remove newlines
 		var text2 = text1.replace(/\n/g, "");
+		// add newline to end of <tr>
 		text1 = text2.replace(/<\/tr>/g, "</tr>\n");
 		text2 = text1.slice(7, -8);			// remove <tbody></tbody>
 		var textFileAsBlob = new Blob([text2], {type:'text/plain'});
@@ -36,60 +41,201 @@
 		downloadLink.click();
 	}
 
+	// Event handler for <tr> in Suggestions (Right Panel)
+	function tr_clicked() {
+		var selection = this.textContent;
+
+		if ($("#delete").prop("checked") == true) {
+			// remove from suggestions[]
+			block = suggestions[currentHead];
+			var i = block.indexOf(selection);
+			block.splice(i, 1);
+			suggestions[currentHead] = block;
+			$(this).remove();
+			$("#delete").prop("checked", false);
+			}
+		else if ($("#change").prop("checked") == true) {
+			// get value of input box (white)
+			new_s = document.getElementById("one-line").value;
+			// change item in suggestions[], target is "this
+			block = suggestions[currentHead];
+			var i = block.indexOf(selection);
+			block[i] = new_s;
+			suggestions[currentHead] = block;
+			this.innerHTML = "<tr><td>" + new_s + "</td></tr>";
+			$(this).show();
+			$("#change").prop("checked", false);
+			}
+		else {
+			// move to <div1>, make draggable
+			textNode = document.createElement('span');
+			textNode.id = 'word_' + word_index;
+			++word_index;
+			// allow dragging for words
+			textNode.draggable = true;
+			textNode.ondragstart = drag;
+			textNode.appendChild(document.createTextNode('(' + selection + ')'));
+			document.getElementById("div1").appendChild(textNode);
+			}
+		}
+
+	// global variables for use in this function
+	var currentHead;
+	var block;
 	function loadFile()
 	{
-		var fileToLoad = document.getElementById("fileToLoad").files[0];
+		// Read organization file (for Left Panel) is HTML only
+		$.get("context-menu.htm", function(data) {
+			// Each <tr> row is already correctly labelled (self and parent),
+			// but we need to add: data-tt-branch='true'
 
+			$(data).attr("data-tt-branch", "true").each(function() {
+				// Determine parent node of the row
+				var parent = $(this).attr("data-tt-parent-id");
+				if (parent == undefined)
+					parentNode = null;
+				else
+					parentNode = $("#context-menu").treetable("node", parent);
+				// console.log(parentNode, this);
+
+				$("#context-menu").treetable("loadBranch", parentNode, this);
+				//debugger;
+			});
+
+			// When context-menu row is selected:
+			$("#context-menu tbody tr").mousedown(function() {
+				$("tr.selected").removeClass("selected");
+				$(this).addClass("selected");
+				// get ID and display stuff in Right Panel
+				currentHead = $("tr.selected")[0].getAttribute("data-tt-id");
+				var s = "";
+				if (suggestions[currentHead] != null) {
+					suggestions[currentHead].forEach(function(suggestion, index, array){
+						s += "<tr><td>";
+						s += suggestion;
+						s += "</td></tr>";
+						});
+					document.getElementById("suggestions").innerHTML = s;
+				}
+				else
+					document.getElementById("suggestions").innerHTML = "";
+
+				// each suggestion has a double-click event:
+				$("#suggestions tr").click(tr_clicked);
+
+				});
+
+			$("#context-menu").treetable("collapseAll");
+
+			// Read text file containing suggestions
+			$.get("suggestions.txt", function(data) {
+				// Each cluster has a heading, followed by (1-tab) indented lines
+				lines = data.split('\n');
+				block = new Array();
+				currentHead = null;
+				lines.forEach(function(line, index, array){
+					if (line[0] == '\t') {
+						block[block.length] = line;				// add line to end of block
+					}
+					else {	// This is a heading
+						suggestions[currentHead] = block;		// store suggestions
+						block = new Array();					// clear block
+						// set next heading
+						var tag = line.slice(0, -1);			// remove end-of-line '\n'
+						findTag = $("#context-menu tbody tr:contains('" + tag + "')");
+						if (findTag.length != 0)
+							currentHead = findTag[0].getAttribute("data-tt-id");
+							// TODO: may add some code here to deal with non-unique tags
+						else
+							currentHead = null;
+					}
+				});
+				suggestions[currentHead] = block;
+				suggestions[null] = null;
+			});
+		});
+	}
+
+	/* Old function:  not in use
+	function loadFile2()
+	{
+		// File is a mix of HTML and plain text.  Format:
+		//		Headings are HTML <tr> lines
+		//		items are plain-text lines
+		var fileToLoad = document.getElementById("fileToLoad").files[0];
 		var fileReader = new FileReader();
 		fileReader.onload = function(fileLoadedEvent)
 			{
 			var text = fileLoadedEvent.target.result;
 			lines = text.split("\n");
 
+			var block = new Array();
+			var currentHeading = "root";
 			lines.forEach(function(line, index, array){
-				
-				// Each line is already correctly labelled (self and parent),
-				// but we need to add: data-tt-branch='true'
-				line2 = line.replace("<tr ", "<tr data-tt-branch='true' ");
-				var newRow = jQuery(line2);
-				var cquoi = jQuery(newRow[0]);
-				
-				// Determine parent node of the row
-				parent = line2.match(/data-tt-parent-id='(n[0-9]*)'/);
-				if (parent == null)
-					parentNode = null;
-				else
-					parentNode = $("#context-menu").treetable("node", parent[1]);
-				// console.log(line2, parent);
-				
-				$("#context-menu").treetable("loadBranch", parentNode, cquoi);
+				// If it is plain-text line, add to Tree at currrent parent
+				// else find the appropriate parent, create a node in Tree
+				if (line[0] != "<") {
+					block[block.length] = line;
+					}
+				else {
+					suggestions[currentHeading] = block;
+					block = new Array();
+
+					// Update currentHeading:
+					currentHeading = line.match(/data-tt-id="(n[0-9]*)"/)[1];
+
+					// Each line is already correctly labelled (self and parent),
+					// but we need to add: data-tt-branch='true'
+					line2 = line.replace("<tr ", "<tr data-tt-branch='true' ");
+					var newRow = jQuery(line2);
+					var cquoi = jQuery(newRow[0]);
+
+					// Determine parent node of the row
+					parent = line2.match(/data-tt-parent-id="(n[0-9]*)"/);
+					if (parent == null)
+						parentNode = null;
+					else
+						parentNode = $("#context-menu").treetable("node", parent[1]);
+					// console.log(line2, parent);
+
+					$("#context-menu").treetable("loadBranch", parentNode, cquoi);
+					}
 				});
 
 			$("#context-menu tbody tr").mousedown(function() {
 				$("tr.selected").removeClass("selected");
 				$(this).addClass("selected");
-				});
+				// get ID and display stuff in Right Panel
+				var id = $("tr.selected")[0].getAttribute("data-tt-id");
+				var s = "";
+				suggestions[id].forEach(function(suggestion, index, array){
+					s += "<tr><td>";
+					s += suggestion;
+					s += "</td></tr>";
+					});
+				document.getElementById("suggestions").innerHTML = s;
 
-			$("#context-menu tbody tr").dblclick(function() {
-				var selection = $(this)[0].cells[0];
-				if (selection.innerHTML.slice(-4) != "</b>") {
+				// each suggestion has a single-click event:
+				$("#suggestions tr").click(function() {
+					var selection = $(this)[0].cells[0];
 					textNode = document.createElement('span');
 					textNode.id = 'word_' + word_index;
 					++word_index;
 					// allow dragging for words
 					textNode.draggable = true;
 					textNode.ondragstart = drag;
-					textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
+					textNode.appendChild(document.createTextNode('(' + selection.innerText + ')'));
 					document.getElementById("div1").appendChild(textNode);
-					}
+					});
+				
 				});
 
 			$("#context-menu").treetable("collapseAll");
-
 			};
 
-		fileReader.readAsText(fileToLoad, "UTF-8");
+		fileReader.readAsText(fileToLoad, "gb18030");
 	}
+	*/
 
   window.addEventListener('DOMContentLoaded', splitWords, false);
 
@@ -229,14 +375,16 @@
 
 	// *********** Functions for manipulating context menu ***********
 
+	// insert item (suggestion)
 	document.getElementById("insert").addEventListener("click", function() {
-		str = document.getElementById("div1").textContent;
-		str = str.replace(/[()]/g, "");
+		str = document.getElementById("one-line").value;
+		// str = str.replace(/[()]/g, "");  // remove parentheses
 
-		// Determine the selected row's parent ID, we insert to same parent
-		parentId = $("tr.selected")[0].getAttribute("data-tt-parent-id");
-		parentNode = $("#context-menu").treetable("node", parentId);
+		// Determine the parent's ID, we insert to same parent
+		parentId = $("tr.selected")[0].getAttribute("data-tt-id");
+		// parentNode = $("#context-menu").treetable("node", parentId);
 
+		/*
 		nodeId = node_index.toString();
 		text = "<tr data-tt-branch='true' data-tt-id='" + nodeId +
 				"' data-tt-parent-id='" + parentId	+ "'><td>" + str + "</td></tr>";
@@ -245,7 +393,26 @@
 		var cquoi = jQuery(newRow[0]);
 
 		$("#context-menu").treetable("loadBranch", parentNode, cquoi);
+		*/
 
+		// add to suggestions
+		var block = suggestions[parentId];
+		if (block != null)
+			block[block.length] = str;
+		else
+			block = [str];
+		suggestions[parentId] = block;
+
+		// no need to create draggable element
+		// just add to Right Pane
+		tr = document.getElementById("suggestions").insertRow();
+		td = tr.insertCell();
+		td.appendChild(document.createTextNode(str));
+
+		// set mouse-click action:
+		$(tr).click(tr_clicked);
+
+		/*
 		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").mousedown(function() {
 			$("tr.selected").removeClass("selected");
 			$(this).addClass("selected");
@@ -264,14 +431,16 @@
 				document.getElementById("div1").appendChild(textNode);
 				}
 			});
-
+		*/
 		}, false);
 
+	/*
+	// remove item (suggestion) from Right Panel
 	document.getElementById("delete").addEventListener("click", function() {
-		// This background color means the row will be deleted upon save
 		$("tr.selected")[0].setAttribute("bgColor", "#555555");
 		}, false);
 
+	// change item (suggestion) on Right Panel
 	document.getElementById("change").addEventListener("click", function() {
 		str = "";
 		children = document.getElementById("div1").children;
@@ -283,7 +452,10 @@
 		innerHTML = innerHTML.slice(0, innerHTML.indexOf("</span>") + 7) + str;
 		$("tr.selected td")[0].innerHTML = innerHTML;
 		}, false);
+	*/
 
+	// convert right-panel item to tree heading
+	/*
 	document.getElementById("to-head").addEventListener("click", function() {
 		obj = $("tr.selected td")[0];
 		innerHTML = obj.innerHTML;
@@ -295,7 +467,9 @@
 		else
 			obj.innerHTML = span + "<b>" + text + "</b>";
 		}, false);
-
+	*/
+   
+	// add a child to tree
 	document.getElementById("add-child").addEventListener("click", function() {
 		// Determine the selected row's ID, we insert to it
 		parentId = $("tr.selected")[0].getAttribute("data-tt-id");
@@ -340,7 +514,7 @@ ev.preventDefault();
 function drag(ev)
 {
 ev.dataTransfer.setData("Text",ev.target.id);
-  console.log('targetid: ' + ev.target.id);
+// console.log('targetid: ' + ev.target.id);
 }
 
 function drop(ev)
@@ -348,12 +522,15 @@ function drop(ev)
 ev.preventDefault();
 var data=ev.dataTransfer.getData("Text");
 ev.target.appendChild(document.getElementById(data));
-  console.log("dropped onto: " + ev.target.id);
+// console.log("dropped onto: " + ev.target.id);
 }
 
 </script>
 
 <style type="text/css">
+#div1 {width:1020px;height:60px;padding:2px;border:3px solid #33ff33;}
+#div2 {width:1020px;height:30px;padding:2px;border:3px solid #ff3333;}
+
 body {
 font-size: 50%;
 font-family: "Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
@@ -367,8 +544,20 @@ input {font-size: 60%; font-weight: bold; }
 a { color: #0066CC; text-decoration: none; border-bottom: 1px dotted #0066cc; }
 #submit_butt { margin-top: 15px; }
 h3 { margin-top: 0; }
-</style>
 
+#left-panel {
+    overflow: hidden;
+	float:left;
+	width:500px;
+	padding:0px;
+}
+#right-panel {
+    float: right;
+	width:500px;
+	padding:0px;
+}
+#suggestions { background-color: #003300; }
+</style>
 </head>
 
 <body>
@@ -376,7 +565,7 @@ h3 { margin-top: 0; }
 <div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
 <!-- div id="drag1" class="draggable">(喜歡) (玩) (網愛) (嗎)</div -->
 
-<input type="text" name="OneLine" id="one-line" size="108" value=""><br>
+<input type="text" id="one-line" size="108" value=""><br>
 <input type="submit" value="type" id="send-white" style="color: #ffffff;">
 <input type="submit" value="green" id="send-green" style="color: #00bb00;">
 <input type="submit" value="up" id="send-up">
@@ -390,17 +579,38 @@ h3 { margin-top: 0; }
 <input type="submit" value="「」" id="quotes">
 
 <input type="submit" value="+" id="insert" style="color: #3333ff;">
-<input type="submit" value="-" id="delete" style="color: #3333ff;">
-<input type="submit" value="+child" id="add-child" style="color: #3333ff;">
-<input type="submit" value="change" id="change" style="color: #3333ff;">
-<input type="submit" value="→head" id="to-head" style="color: #3333ff;">
-voov <input type="radio" name="group1" value="voov" id="voov" checked>
-<input type="radio" name="group1" value="adult" id="adult"> adult
+<input type="checkbox" id="delete" style="width:20px; height:20px;">del
+<input type="checkbox" id="change" style="width:20px; height:20px;">change
+<input type="submit" value="+tag" id="add-child" style="color: #3333ff;">
+<!-- input type="submit" value="→head" id="to-head" style="color: #3333ff;" -->
+&nbsp;voov <input type="radio" name="group1" id="voov" checked style="width:25px; height:25px;">
+<input type="radio" name="group1" id="adult" style="width:25px; height:25px;"> adult
 
-<table id="context-menu" class="treetable">
-<tbody>
-</tbody>
-</table>
+<div id="mid-levels">
+
+  <div id="left-panel">
+
+	<table id="context-menu" class="treetable">
+	<tbody>
+	</tbody>
+	</table>
+
+  </div>
+
+  <div id="right-panel">
+	<br>
+	
+	<table id="suggestions">
+		<tr>
+			<td>(C)2013 YKY</td>
+		</tr>
+	</table>
+
+  </div>
+
+<br style="clear:both;"/>
+</div>
+
 
 <!-- a href="#" id="showkeyboard" title="virtual keyboard">Keyboard</a-->
 
@@ -537,7 +747,6 @@ voov <input type="radio" name="group1" value="voov" id="voov" checked>
 <script>
 
 	$("#context-menu").treetable({ expandable: true, clickableNodeNames: true });
-	console.log("so far so good");
 
 	var word_index = 0;
 	var node_index = 0;
@@ -549,10 +758,15 @@ voov <input type="radio" name="group1" value="voov" id="voov" checked>
 <script type="text/javascript" src="js/vkeyboard.js"></script>
 
 <div style="position:absolute;bottom:0;right:0;">
-<input type="file" id="fileToLoad" value="phrase-table.txt" width="50%">
 <a href="javascript:loadFile()">Load</a>
 <a href="javascript:saveFile()">Save</a>
 </div>
+
+<script>
+
+	console.log("so far so good");
+
+</script>
 
 </body>
 </html>

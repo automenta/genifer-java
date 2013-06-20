@@ -20,7 +20,7 @@
 // -- tree-style menu, for contexts -- OK!
 // -- such contexts may be displayed automatically or selected manually
 // -- each phrases is added as a whole, but tokenized upon dropping
-local
+
 // * Send to Adult Chatroom
 // -- send message -- OK!
 // -- remove ()'s -- OK!
