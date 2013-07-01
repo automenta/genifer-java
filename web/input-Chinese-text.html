@@ -21,18 +21,18 @@
 			label { display: block; margin-top: 10px; color: #0066cc; }
 
 			input[type=button] {
-				background-color: #444444;
+				background-color: #555555;
 				color: #ffffff;
-				padding: 2px 4px;
+				padding: 2px 2px;
 				font: 15px sans-serif;
 				font-weight: bold;
 				text-decoration: none;
-				border: 1px solid #000;
-				border-color: #aaa #444 #444 #aaa;
+				border: 3px solid #000;
+				border-color: #aaa #333 #333 #aaa;
 			}
 
 			input {
-				font-size: 100%;
+				font-size: 120%;
 				/* font-weight: bold; */
 			}
 
@@ -90,8 +90,8 @@
 		<!-- div id="drag1" class="draggable">(炰�) (俙) (鋒�) (�)</div -->
 
 		<input type="text" id="white-box" style="width:100%; height:120%;" value=""><br>
-		<input type="button" value="type" id="send-white">
-		<input type="button" value="green" id="send-green" style="color: #00bb00;">
+		<input type="button" value="↲" id="send-white">
+		<input type="button" value="↲" id="send-green" style="color: #33ff33;">
 		<input type="button" value="⬆" id="send-up">
 		<input type="button" value="⬇" id="send-down">
 		<input type="button" value="X" id="clear-white">
@@ -263,14 +263,14 @@
 
 		</div>
 
-		<div style="position:absolute;bottom:0;right:0;">
+		<div style="position:absolute;bottom:20px;left:0;">
 			<a href="javascript:loadDB()">(Load DB) </a>
 			<a href="javascript:saveDB()">(Save DB) </a>
 		</div>
 
 		<script src="js/jquery-1.10.1.min.js"></script>
 		<!-- script type="text/javascript" src="js/jquery-ui-personalized-1.5.2.min.js"></script-->
-		<script type="text/javascript" src="js/jquery-fieldselection.js"></script>
+		<!-- script type="text/javascript" src="js/jquery-fieldselection.js"></script -->
 		<!-- script type="text/javascript" src="js/vkeyboard.js"></script -->
 		<script type="text/javascript" src="js/YKY-input-method.js"></script>
 

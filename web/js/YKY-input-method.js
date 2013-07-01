@@ -79,7 +79,7 @@ function fillColumn3()
 
 	// On click: highlight selection and display suggestions
 	$('#level3 tr').click(function() {
-		$("#level2 tr.selected").removeClass("selected");
+		$("#level3 tr.selected").removeClass("selected");
 		$(this).addClass('selected');
 		// display next-level menu
 		level3 = this.rowIndex + 1;
@@ -110,9 +110,14 @@ function fillSuggestions()
 
 	for (i = 1; i < node[0].length; ++i) {
 		s = node[0][i];
-		textNode = document.createElement('span');
-		textNode.appendChild(document.createTextNode(s));
-		div.appendChild(textNode);
+		// break the line into words
+		s.split(" ").forEach(function(s1) {
+			textNode = document.createElement('span');
+			textNode.appendChild(document.createTextNode(s1));
+			div.appendChild(textNode);
+		});
+		// after each line, add a <br>
+		div.appendChild(document.createElement("br"));
 	}
 
 	// On click: send to green box
@@ -184,11 +189,11 @@ function word_DoubleClick(str) {
 	window.postMessage({type: "FROM_PAGE", text: clicked_str}, "*");
 }
 
-function loadDB()
+function loadDB(pathname)
 {
 	// Read lexicon (plain text file) into memory, store as tree data structure
 	// The tree structure is stored as nested arrays.
-	$.get("database.txt", function(data) {
+	$.get(pathname, function(data) {
 
 		database = new Array();
 
@@ -264,12 +269,22 @@ function saveDB()
 		}
 	}
 
-	var textFileAsBlob = new Blob([s0], {type: 'text/plain'});
-	var fileNameToSaveAs = "~/NetBeansProjects/genifer-java/web/database-out.txt";
-	var downloadLink = document.createElement("a");
-	downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-	downloadLink.download = fileNameToSaveAs;
-	downloadLink.click();
+	$.ajax({
+		method: "POST",
+		url: "/saveDatabase",
+		data: {data: s0},
+		success: function(resp) {
+			console.log("file saved");
+		}
+	});
+
+// **** Save to server side with this code:
+//	var textFileAsBlob = new Blob([s0], {type: 'text/plain'});
+//	var fileNameToSaveAs = "database-out.txt";	//	must be "Downloads" directory
+//	var downloadLink = document.createElement("a");
+//	downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+//	downloadLink.download = fileNameToSaveAs;
+//	downloadLink.click();
 }
 
 // ******************************* Menu buttons ********************************
@@ -320,11 +335,11 @@ document.getElementById("send-up").addEventListener("click", function() {
 }, false);
 
 document.getElementById("send-down").addEventListener("click", function() {
-	str = document.getElementById("green-box").textContent;
+	green_str = document.getElementById("green-box").textContent;
 	// str = str.replace(/[()]/g, "");		// remove ()'s
 
-	str2 = document.getElementById("white-box").value.slice(0,-1);
-	document.getElementById("white-box").value = str2 + str;
+	white_str = document.getElementById("white-box").value;
+	document.getElementById("white-box").value = white_str + green_str;
 }, false);
 
 document.getElementById("clear-white").addEventListener("click", function() {
@@ -366,67 +381,45 @@ document.getElementById("quotes").addEventListener("click", function() {
 
 // *********** Functions for manipulating context menu ***********
 
-// insert item (suggestion)
+// insert White-Box item to currently selected menu node
 document.getElementById("insert").addEventListener("click", function() {
 	str = document.getElementById("white-box").value;
-	// str = str.replace(/[()]/g, "");  // remove ()'s
 
-	// Determine the parent's ID, we insert to same parent
-	parentId = $("tr.selected")[0].getAttribute("data-tt-id");
-	// parentNode = $("#context-menu").treetable("node", parentId);
+	// add to tree:
+	currentNode[0][currentNode[0].length] = str;
 
-	// add to suggestions
-	var block = suggestions[parentId];
-	if (block != null)
-		block[block.length] = str;
-	else
-		block = [str];
-	suggestions[parentId] = block;
-
-	// no need to create draggable element
-	// just add to Right Pane
-	tr = document.getElementById("suggestions").insertRow();
-	td = tr.insertCell();
-	td.appendChild(document.createTextNode(str));
-
-	// set mouse-click action:
-	$(tr).click(tr_SingleClick);
-
+	// just add to #suggestions and refresh
+	fillSuggestions();
 }, false);
 
-// add a child to tree
+// add a child node to tree
 document.getElementById("add-child").addEventListener("click", function() {
-	// Determine the selected row's ID, we insert to it
-	parentId = $("tr.selected")[0].getAttribute("data-tt-id");
-	parentNode = $("#context-menu").treetable("node", parentId);
+	str = document.getElementById("white-box").value;
 
-	nodeId = node_index.toString();
-	text = "<tr data-tt-branch='true' data-tt-id='" + nodeId +
-			  "' data-tt-parent-id='" + parentId + "'><td>" + "____" + "</td></tr>";
-	++node_index;
-	var newRow = jQuery(text);
-	var cquoi = jQuery(newRow[0]);
+	// Insert node at tree before currentNode
+	// We need to traverse the tree to the currentNode,
+	// whose location is given by level1, level2, level3
+	var parentNode = null;
+	if (level3 != null) {
+		parentNode = database[level1][level2];		// find parent
+		parentNode.splice(level3, 0, [[str]]);		// add new array
+		// parentNode[level3][0] = str;					// add name tag
+	}
+	else if (level2 != null) {
+		parentNode = database[level1];				// find parent
+		parentNode.splice(level2, 0, [[str]]);			// add new array
+		// parentNode[level2][0] = str;					// add name tag
+	}
+	else {
+		parentNode = database;							// find parent
+		parentNode.splice(level1, 0, [[str]]);			// add new array
+		// parentNode[level1][0] = str;					// add name tag
+	}
 
-	$("#context-menu").treetable("loadBranch", parentNode, cquoi);
-
-	$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").mousedown(function() {
-		$("tr.selected").removeClass("selected");
-		$(this).addClass("selected");
-	});
-
-	$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").dblclick(function() {
-		var selection = $(this)[0].cells[0];
-		if (selection.innerHTML.slice(-4) !== "</b>") {
-			textNode = document.createElement('span');
-			textNode.id = 'word_' + word_index;
-			++word_index;
-			// allow dragging for words
-			textNode.draggable = true;
-			textNode.ondragstart = drag;
-			textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
-			document.getElementById("green-box").appendChild(textNode);
-		}
-	});
+	// redraw tree menu
+	fillColumn1();
+	fillColumn2();
+	fillColumn3();
 
 }, false);
 
@@ -442,6 +435,8 @@ document.getElementById("adult").addEventListener("click", function() {
 }, false);
 
 window.addEventListener('DOMContentLoaded', splitWords, false);
+
+// **************** Old functions, create draggable elements ******************
 
 function splitWords() {
 
@@ -495,5 +490,6 @@ function drop(ev)
 // console.log("dropped onto: " + ev.target.id);
 }
 
-loadDB();
+loadDB("synonym_forest_YKY_database.txt");
+// loadDB("database.txt");
 console.log("so far so good");

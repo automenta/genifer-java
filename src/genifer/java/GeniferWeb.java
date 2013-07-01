@@ -91,8 +91,7 @@ public class GeniferWeb extends Spark {
                 String r = genifer.getFormula(id).toString();
                 return r;
             }
-
-		});
+			});
 
         Route formularize;
 
@@ -122,6 +121,29 @@ public class GeniferWeb extends Spark {
             }
         });
         get(eval);
+
+        Route saveDatabase;
+
+        post(new Route("/saveDatabase") {
+            @Override
+            public Object handle(Request rqst, Response rspns) {
+					 // System.out.println("saving database....");
+                rspns.header("Content-type", "text/html");
+					 // String list = rqst.queryParams().toString();
+					 // System.out.println("params are: " + list);
+                String data = rqst.queryParams("data").toString();
+                // System.out.println("data is: " + data.substring(0, 100));
+					 try {
+						  PrintWriter out = new PrintWriter("web/database-out.txt");
+						  out.print(data);
+						  out.close();
+		          }	catch (FileNotFoundException ex) {
+						  Logger.getLogger(GeniferWeb.class.getName()).log(Level.SEVERE, null, ex);
+					 }
+					 return "Database saved";
+				}
+			});
+
 
         get(new Route("/*") {
 
