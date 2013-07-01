@@ -1,772 +1,789 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=gb18030" />
-<title>YKY input form</title>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=GB18030" />
+		<title>YKY input form</title>
 
-<link href="css/jquery.treetable.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="css/jquery.treetable.theme.default.css" />
-<link href="css/keyboard.css" type="text/css" rel="stylesheet" />
+		<link href="css/keyboard.css" type="text/css" rel="stylesheet" />
+
+		<style type="text/css">
+			#green-box {width:100%;height:30px;padding:2px;border:3px solid #33ff33;}
+			#red-box {width:100%;height:60px;padding:2px;border:3px solid #ff3333;}
+
+			body {
+				font-size: 65%;
+				font-family: "Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
+				padding-top: 0px;
+				background-color: #000000;
+				color: #ccffff;
+			}
+
+			label { display: block; margin-top: 10px; color: #0066cc; }
+
+			input[type=button] {
+				background-color: #444444;
+				color: #ffffff;
+				padding: 2px 4px;
+				font: 15px sans-serif;
+				font-weight: bold;
+				text-decoration: none;
+				border: 1px solid #000;
+				border-color: #aaa #444 #444 #aaa;
+			}
+
+			input {
+				font-size: 100%;
+				/* font-weight: bold; */
+			}
+
+			a { color: #0066CC; text-decoration: none; border-bottom: 1px dotted #0066cc; }
+
+			#submit_butt { margin-top: 15px; }
+
+			h3 { margin-top: 0; }
+
+			#column1 {
+				overflow: hidden;
+				float:left;
+				width:33%;
+				padding:0px;
+				border:1px solid #ccffff;
+			}
+			#column2 {
+				overflow: hidden;
+				float:left;
+				width:33%;
+				padding:0px;
+				border:1px solid #ccffff;
+			}
+			#column3 {
+				float: right;
+				width:33%;
+				padding:0px;
+				border:1px solid #ccffff;
+			}
+			#suggestions {
+				/* background-color: #003300; */
+				height: 240px;
+				line-height: 180%;
+				margin: 5px 5px;
+				overflow: auto;
+			}
+
+			#suggestions span, #red-box span, #green-box span {
+				background: #003333;
+				padding: 1px;
+				border: 1px solid #00bb00;
+				margin: 3px;
+			}
+
+			.selected td {
+				background: #003333;
+				border: 1px solid #00bb00;
+			}
+		</style>
 
 <script>
-	// To-do:
-	// * Find a way to build word categories automatically
-	//	- process Roget's thesaurus
 
-	var suggestions = new Array();
+// The file format should be 1-piece.  But it could be plain or hierarchical.
+// Seems that hierarchical would be easier to handle.
 
-	function saveFile()
-	{
-		// File is a mix of HTML and plain text.  Format:
-		//		Headings are HTML <tr> lines
-		//		items are plain-text lines
-		var clone = $("#context-menu").clone();
-		// remove <span>, <class>, <style> decorations
-		$("span", clone).remove();
-		$("tr", clone).removeAttr('class');
-		$("tr", clone).removeAttr('style');
-		var text1 = clone.html();
-		// console.log(text1);
-		// remove newlines
-		var text2 = text1.replace(/\n/g, "");
-		// add newline to end of <tr>
-		text1 = text2.replace(/<\/tr>/g, "</tr>\n");
-		text2 = text1.slice(7, -8);			// remove <tbody></tbody>
-		var textFileAsBlob = new Blob([text2], {type:'text/plain'});
-		var fileNameToSaveAs = "phrase-table.txt";
+var database = new Array();
 
-		var downloadLink = document.createElement("a");
-		downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-		downloadLink.download = fileNameToSaveAs;
-		downloadLink.click();
+// Variables holding which row is selected on each level:
+var level1 = 1;
+var level2 = 1;
+var level3 = 1;
+var currentNode = null;
+
+function fillColumn1()
+{
+	var table = document.getElementById("level1");
+	table.innerHTML = "";
+	for (i = database.length - 1; i > 0; --i) {
+		node = database[i];
+		var row = table.insertRow(0);
+		var cell = row.insertCell(0);
+		cell.innerHTML = node[0][0];
 	}
 
-	// Event handler for <tr> in Suggestions (Right Panel)
-	function tr_clicked() {
-		var selection = this.textContent;
+	// On click: highlight selection and display next-level menu
+	// On double-click: ?
+	$('#level1 tr').click(function() {
+		$("#level1 tr.selected").removeClass("selected");
+		$(this).addClass('selected');
+		// display next-level menu
+		level1 = this.rowIndex + 1;
+		level2 = null;
+		level3 = null;
+		fillColumn2();
+		fillSuggestions();
+	});
+}
 
-		if ($("#delete").prop("checked") == true) {
-			// remove from suggestions[]
-			block = suggestions[currentHead];
-			var i = block.indexOf(selection);
-			block.splice(i, 1);
-			suggestions[currentHead] = block;
-			$(this).remove();
-			$("#delete").prop("checked", false);
+function fillColumn2()
+{
+	var table = document.getElementById("level2");
+	table.innerHTML = "";
+	for (i = database[level1].length - 1; i > 0; --i) {
+		node = database[level1][i];
+		var row = table.insertRow(0);
+		var cell = row.insertCell(0);
+		cell.innerHTML = node[0][0];
+	}
+
+	// On click: highlight selection and display next-level menu
+	$('#level2 tr').click(function() {
+		$("#level2 tr.selected").removeClass("selected");
+		$(this).addClass('selected');
+		// display next-level menu
+		level2 = this.rowIndex + 1;
+		level3 = null;
+		fillColumn3();
+		fillSuggestions();
+	});
+
+}
+
+function fillColumn3()
+{
+	var table = document.getElementById("level3");
+	table.innerHTML = "";
+	for (i = database[level1][level2].length - 1; i > 0; --i) {
+		node = database[level1][level2][i];
+		var row = table.insertRow(0);
+		var cell = row.insertCell(0);
+		cell.innerHTML = node[0][0];
+	}
+
+	// On click: highlight selection and display suggestions
+	$('#level3 tr').click(function() {
+		$("#level2 tr.selected").removeClass("selected");
+		$(this).addClass('selected');
+		// display next-level menu
+		level3 = this.rowIndex + 1;
+		fillSuggestions();
+	});
+}
+
+// global variables for use in this function
+var clicktimer;
+var e_click;
+var id_click;
+var clicked_str;
+
+function fillSuggestions()
+{
+	var div = document.getElementById("suggestions");
+	div.innerHTML = "";
+
+	// traverse the tree:
+	if (level3 != null)
+		node = database[level1][level2][level3];
+	else if (level2 != null)
+		node = database[level1][level2];
+	else
+		node = database[level1];
+
+	currentNode = node;				// set global variable for later use
+
+	for (i = 1; i < node[0].length; ++i) {
+		s = node[0][i];
+		textNode = document.createElement('span');
+		textNode.appendChild(document.createTextNode(s));
+		div.appendChild(textNode);
+	}
+
+	// On click: send to green box
+	// On double-click: send directly, make sound
+	$("#suggestions span").on('click', function(ev)
+		{
+		clicked_str = this.textContent;
+		e_click = ev;
+		id_click = this.id;
+		clicktimer = window.setTimeout(function () {
+			if(e_click) {
+				word_SingleClick();
+				clearTimeout(clicktimer);
+				clicktimer = null;
+			}}, 500);
+		}).dblclick(function(ev)
+		{
+		window.clearTimeout(clicktimer);
+		e_click = null;
+		id_click = null;
+		word_DoubleClick();
+		});
+}
+
+// Event handler for <tr> in Suggestions (Right Panel)
+function word_SingleClick(item) {
+	var selection = clicked_str;
+
+	if ($("#delete").prop("checked") === true) {
+		// remove from tree
+		pos = currentNode[0].indexOf(selection);
+		currentNode[0].splice(pos, 1);
+
+		// remove from HTML page
+		$("#suggestions span")[pos - 1].remove();
+
+		$("#delete").prop("checked", false);	// reset button
+	}
+	else if ($("#change").prop("checked") === true) {
+		// get value of input box (white)
+		new_s = document.getElementById("white-box").value;
+
+		// change item in tree
+		pos = currentNode[0].indexOf(selection);
+		currentNode[0][pos] = new_s;
+
+		// change HTML in page
+		$("#suggestions span")[pos - 1].innerText = new_s;
+
+		$("#change").prop("checked", false);	// reset button
+	}
+	else {
+		// move to <green-box>, make draggable
+		textNode = document.createElement('span');
+		textNode.id = 'word_' + word_index;
+		++word_index;
+		// allow dragging for words
+		textNode.draggable = true;
+		textNode.ondragstart = drag;
+		textNode.appendChild(document.createTextNode(selection));
+		document.getElementById("green-box").appendChild(textNode);
+	}
+}
+
+// each suggestion has a double-click event:  enter the text directly
+function word_DoubleClick(str) {
+	var audio_dicq = new Audio("dicq.ogg");
+	audio_dicq.play();
+	window.postMessage({type: "FROM_PAGE", text: clicked_str}, "*");
+};
+
+function loadDB()
+{
+	// Read lexicon (plain text file) into memory, store as tree data structure
+	// The tree structure is stored as nested arrays.
+	$.get("database.txt", function(data) {
+
+		database = new Array();
+
+		var lines = data.split("\n");
+
+		var node = null;
+		lines.forEach(function(line) {
+			if (line[0] === '\t') {
+				// This is a heading line.
+				// After '\t' is the section number,
+				// Followed by the section title.
+
+				// Get the section sequence
+				var section = line.slice(1, line.indexOf(' ') - 1);
+				var sequence = section.split('.').map(function(s) {return parseInt(s);});
+				// console.log(sequence);
+
+				// Traverse the tree and add a new node (or nodes)
+				node = database;
+				sequence.forEach(function(number) {
+					if (node[number] != null)
+						node = node[number];						// traverse the tree
+					else
+						{
+						node[number] = new Array();			// create new node
+						node = node[number];
+						// store new node's title as first element of new array
+						node[0] = [ line.slice(line.indexOf(' ') + 1) ];
+						}
+				});
 			}
-		else if ($("#change").prop("checked") == true) {
-			// get value of input box (white)
-			new_s = document.getElementById("one-line").value;
-			// change item in suggestions[], target is "this
-			block = suggestions[currentHead];
-			var i = block.indexOf(selection);
-			block[i] = new_s;
-			suggestions[currentHead] = block;
-			this.innerHTML = "<tr><td>" + new_s + "</td></tr>";
-			$(this).show();
-			$("#change").prop("checked", false);
+			else {	// this is an item line
+				node[0][node[0].length] = line;				// add item to end of array
 			}
-		else {
-			// move to <div1>, make draggable
+		});
+
+		fillColumn1();
+		fillColumn2();
+		fillColumn3();
+	});
+}
+
+function saveDB()
+{
+	// Plain text file containing all headings and suggestions
+	var s0 = "";
+
+	// Traverse tree:
+	for (i = 1; i < database.length; ++i) {
+		s0 += ("\t" + i + ". ");								// print section number
+		s0 += (database[i][0][0] + "\n");					// print heading
+
+		// print contents
+		for (h = 1; h < database[i][0].length; ++h)
+			s0 += (database[i][0][h] + "\n");
+
+		for (j = 1; j < database[i].length; ++j) {
+			s0 += ("\t" + i + "." + j + ". ");				// print section number
+			s0 += (database[i][j][0][0] + "\n");			// print heading
+
+			// print contents
+			for (h = 1; h < database[i][j][0].length; ++h)
+				s0 += (database[i][j][0][h] + "\n");
+
+			for (k = 1; i < database[i][j].length; ++k) {
+				s0 += ("\t" + i + "." + j + "." + k + ". "); // print section number
+				s0 += (database[i][j][k][0][0] + "\n"); 	// print heading
+
+				// print contents
+				for (h = 1; h < database[i][j][k][0].length; ++h)
+					s0 += (database[i][j][k][0][h] + "\n");
+			}
+		}
+	}
+
+	var textFileAsBlob = new Blob([s0], {type: 'text/plain'});
+	var fileNameToSaveAs = "~/NetBeansProjects/genifer-java/web/database-out.txt";
+	var downloadLink = document.createElement("a");
+	downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+	downloadLink.download = fileNameToSaveAs;
+	downloadLink.click();
+}
+
+
+window.addEventListener('DOMContentLoaded', splitWords, false);
+
+function splitWords() {
+
+	var elems = document.querySelectorAll('.draggable'),
+			  text,
+			  textNode,
+			  words,
+			  elem;
+
+	// iterate through all .draggable elements
+	for (var i = 0, l = elems.length; i < l; i++) {
+
+		elem = elems[i];
+		textNode = elem.childNodes[0];
+		text = textNode.nodeValue;
+
+		// remove current text node
+		elem.removeChild(textNode);
+		words = text.split(' ');
+
+		// iterate through words
+		for (var k = 0, ll = words.length; k < ll; k++) {
+			// create node for all words
+			textNode = document.createElement('span');
+			textNode.id = 'word_A' + i + k;
+			// allow dragging for words
+			textNode.draggable = true;
+			textNode.ondragstart = drag;
+			textNode.appendChild(document.createTextNode(words[k] + ' '));
+			elem.appendChild(textNode);
+		}
+	}
+}
+
+function allowDrop(ev)
+{
+	ev.preventDefault();
+}
+
+function drag(ev)
+{
+	ev.dataTransfer.setData("Text", ev.target.id);
+// console.log('targetid: ' + ev.target.id);
+}
+
+function drop(ev)
+{
+	ev.preventDefault();
+	var data = ev.dataTransfer.getData("Text");
+	ev.target.appendChild(document.getElementById(data));
+// console.log("dropped onto: " + ev.target.id);
+}
+
+
+// ******************************* Menu buttons ********************************
+
+// Enter pressed on White-Box
+document.getElementById("white-box").onkeypress = function(e) {
+	if (!e)
+		e = window.event;
+	var keyCode = e.keyCode || e.which;
+	if (keyCode === 13) {						// enter key = 13
+		quicksend();
+		return false;
+	}
+};
+
+function quicksend() {
+	str = document.getElementById("white-box").value;
+	window.postMessage({type: "FROM_PAGE", text: str}, "*");
+}
+
+document.getElementById("send-white").addEventLis
+document.getElementById("send-white").addEvtener("click", quicksend, false);
+
+document.getElementById("send-green").addEventListener("click", function() {
+	str = document.getElementById("green-box").textContent;
+	str = str.replace(/[()]/g, "");
+
+	window.postMessage({type: "FROM_PAGE", text: str}, "*");
+	// console.log("I'm sending something");
+}, false);
+
+document.getElementById("send-up").addEventListener("click", function() {
+	str = document.getElementById("white-box").value;
+	words = str.split(" ");
+	words.forEach(function(word, i, array) {
+		// wrap () around all words
+		// word = "(" + word + ")";
+		// make words draggable
+		// create node for all words
+		textNode = document.createElement('span');
+		textNode.id = 'word_' + word_index;
+		++word_index;
+		// allow dragging for words
+		textNode.draggable = true;
+		textNode.ondragstart = drag;
+		textNode.appendChild(document.createTextNode(word));
+		document.getElementById("green-box").appendChild(textNode);
+	});
+}, false);
+
+document.getElementById("send-down").addEventListener("click", function() {
+	str = document.getElementById("green-box").textContent;
+	// str = str.replace(/[()]/g, "");		// remove ()'s
+
+	str2 = document.getElementById("white-box").value.slice(0,-1);
+	document.getElementById("white-box").value = str2 + str;
+}, false);
+
+document.getElementById("clear-white").addEventListener("click", function() {
+	document.getElementById("white-box").value = "";
+}, false);
+
+document.getElementById("clear-green1-L").addEventListener("click", function() {
+	var node = document.getElementById("green-box");
+	node.removeChild(node.firstChild);
+}, false);
+
+document.getElementById("clear-green1-R").addEventListener("click", function() {
+	var node = document.getElementById("green-box");
+	node.removeChild(node.lastChild);
+}, false);
+
+document.getElementById("clear-green").addEventListener("click", function() {
+	var node = document.getElementById("green-box");
+	while (node.hasChildNodes()) {
+		node.removeChild(node.lastChild);
+	}
+}, false);
+
+document.getElementById("clear-red").addEventListener("click", function() {
+	var node = document.getElementById("red-box");
+	while (node.hasChildNodes()) {
+		node.removeChild(node.lastChild);
+	}
+}, false);
+
+document.getElementById("smile").addEventListener("click", function() {
+	document.getElementById("white-box").value += ":)";
+}, false);
+
+document.getElementById("quotes").addEventListener("click", function() {
+	str = document.getElementById("white-box").value;
+	document.getElementById("white-box").value = "``" + str + "''";
+}, false);
+
+// *********** Functions for manipulating context menu ***********
+
+// insert item (suggestion)
+document.getElementById("insert").addEventListener("click", function() {
+	str = document.getElementById("white-box").value;
+	// str = str.replace(/[()]/g, "");  // remove ()'s
+
+	// Determine the parent's ID, we insert to same parent
+	parentId = $("tr.selected")[0].getAttribute("data-tt-id");
+	// parentNode = $("#context-menu").treetable("node", parentId);
+
+	// add to suggestions
+	var block = suggestions[parentId];
+	if (block != null)
+		block[block.length] = str;
+	else
+		block = [str];
+	suggestions[parentId] = block;
+
+	// no need to create draggable element
+	// just add to Right Pane
+	tr = document.getElementById("suggestions").insertRow();
+	td = tr.insertCell();
+	td.appendChild(document.createTextNode(str));
+
+	// set mouse-click action:
+	$(tr).click(tr_SingleClick);
+
+}, false);
+
+// add a child to tree
+document.getElementById("add-child").addEventListener("click", function() {
+	// Determine the selected row's ID, we insert to it
+	parentId = $("tr.selected")[0].getAttribute("data-tt-id");
+	parentNode = $("#context-menu").treetable("node", parentId);
+
+	nodeId = node_index.toString();
+	text = "<tr data-tt-branch='true' data-tt-id='" + nodeId +
+			  "' data-tt-parent-id='" + parentId + "'><td>" + "____" + "</td></tr>";
+	++node_index;
+	var newRow = jQuery(text);
+	var cquoi = jQuery(newRow[0]);
+
+	$("#context-menu").treetable("loadBranch", parentNode, cquoi);
+
+	$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").mousedown(function() {
+		$("tr.selected").removeClass("selected");
+		$(this).addClass("selected");
+	});
+
+	$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").dblclick(function() {
+		var selection = $(this)[0].cells[0];
+		if (selection.innerHTML.slice(-4) !== "</b>") {
 			textNode = document.createElement('span');
 			textNode.id = 'word_' + word_index;
 			++word_index;
 			// allow dragging for words
 			textNode.draggable = true;
 			textNode.ondragstart = drag;
-			textNode.appendChild(document.createTextNode('(' + selection + ')'));
-			document.getElementById("div1").appendChild(textNode);
-			}
+			textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
+			document.getElementById("green-box").appendChild(textNode);
 		}
+	});
 
-	// global variables for use in this function
-	var currentHead;
-	var block;
-	function loadFile()
-	{
-		// Read organization file (for Left Panel) is HTML only
-		$.get("context-menu.htm", function(data) {
-			// Each <tr> row is already correctly labelled (self and parent),
-			// but we need to add: data-tt-branch='true'
+}, false);
 
-			$(data).attr("data-tt-branch", "true").each(function() {
-				// Determine parent node of the row
-				var parent = $(this).attr("data-tt-parent-id");
-				if (parent == undefined)
-					parentNode = null;
-				else
-					parentNode = $("#context-menu").treetable("node", parent);
-				// console.log(parentNode, this);
 
-				$("#context-menu").treetable("loadBranch", parentNode, this);
-				//debugger;
-			});
+// **************** Choosing which web page to feed output to *****************
 
-			// When context-menu row is selected:
-			$("#context-menu tbody tr").mousedown(function() {
-				$("tr.selected").removeClass("selected");
-				$(this).addClass("selected");
-				// get ID and display stuff in Right Panel
-				currentHead = $("tr.selected")[0].getAttribute("data-tt-id");
-				var s = "";
-				if (suggestions[currentHead] != null) {
-					suggestions[currentHead].forEach(function(suggestion, index, array){
-						s += "<tr><td>";
-						s += suggestion;
-						s += "</td></tr>";
-						});
-					document.getElementById("suggestions").innerHTML = s;
-				}
-				else
-					document.getElementById("suggestions").innerHTML = "";
+document.getElementById("voov").addEventListener("click", function() {
+	window.postMessage({type: "CHAT_ROOM", text: "voov"}, "*");
+}, false);
 
-				// each suggestion has a double-click event:
-				$("#suggestions tr").click(tr_clicked);
-
-				});
-
-			$("#context-menu").treetable("collapseAll");
-
-			// Read text file containing suggestions
-			$.get("suggestions.txt", function(data) {
-				// Each cluster has a heading, followed by (1-tab) indented lines
-				lines = data.split('\n');
-				block = new Array();
-				currentHead = null;
-				lines.forEach(function(line, index, array){
-					if (line[0] == '\t') {
-						block[block.length] = line;				// add line to end of block
-					}
-					else {	// This is a heading
-						suggestions[currentHead] = block;		// store suggestions
-						block = new Array();					// clear block
-						// set next heading
-						var tag = line.slice(0, -1);			// remove end-of-line '\n'
-						findTag = $("#context-menu tbody tr:contains('" + tag + "')");
-						if (findTag.length != 0)
-							currentHead = findTag[0].getAttribute("data-tt-id");
-							// TODO: may add some code here to deal with non-unique tags
-						else
-							currentHead = null;
-					}
-				});
-				suggestions[currentHead] = block;
-				suggestions[null] = null;
-			});
-		});
-	}
-
-	/* Old function:  not in use
-	function loadFile2()
-	{
-		// File is a mix of HTML and plain text.  Format:
-		//		Headings are HTML <tr> lines
-		//		items are plain-text lines
-		var fileToLoad = document.getElementById("fileToLoad").files[0];
-		var fileReader = new FileReader();
-		fileReader.onload = function(fileLoadedEvent)
-			{
-			var text = fileLoadedEvent.target.result;
-			lines = text.split("\n");
-
-			var block = new Array();
-			var currentHeading = "root";
-			lines.forEach(function(line, index, array){
-				// If it is plain-text line, add to Tree at currrent parent
-				// else find the appropriate parent, create a node in Tree
-				if (line[0] != "<") {
-					block[block.length] = line;
-					}
-				else {
-					suggestions[currentHeading] = block;
-					block = new Array();
-
-					// Update currentHeading:
-					currentHeading = line.match(/data-tt-id="(n[0-9]*)"/)[1];
-
-					// Each line is already correctly labelled (self and parent),
-					// but we need to add: data-tt-branch='true'
-					line2 = line.replace("<tr ", "<tr data-tt-branch='true' ");
-					var newRow = jQuery(line2);
-					var cquoi = jQuery(newRow[0]);
-
-					// Determine parent node of the row
-					parent = line2.match(/data-tt-parent-id="(n[0-9]*)"/);
-					if (parent == null)
-						parentNode = null;
-					else
-						parentNode = $("#context-menu").treetable("node", parent[1]);
-					// console.log(line2, parent);
-
-					$("#context-menu").treetable("loadBranch", parentNode, cquoi);
-					}
-				});
-
-			$("#context-menu tbody tr").mousedown(function() {
-				$("tr.selected").removeClass("selected");
-				$(this).addClass("selected");
-				// get ID and display stuff in Right Panel
-				var id = $("tr.selected")[0].getAttribute("data-tt-id");
-				var s = "";
-				suggestions[id].forEach(function(suggestion, index, array){
-					s += "<tr><td>";
-					s += suggestion;
-					s += "</td></tr>";
-					});
-				document.getElementById("suggestions").innerHTML = s;
-
-				// each suggestion has a single-click event:
-				$("#suggestions tr").click(function() {
-					var selection = $(this)[0].cells[0];
-					textNode = document.createElement('span');
-					textNode.id = 'word_' + word_index;
-					++word_index;
-					// allow dragging for words
-					textNode.draggable = true;
-					textNode.ondragstart = drag;
-					textNode.appendChild(document.createTextNode('(' + selection.innerText + ')'));
-					document.getElementById("div1").appendChild(textNode);
-					});
-				
-				});
-
-			$("#context-menu").treetable("collapseAll");
-			};
-
-		fileReader.readAsText(fileToLoad, "gb18030");
-	}
-	*/
-
-  window.addEventListener('DOMContentLoaded', splitWords, false);
-
-  function splitWords() {
-
-    var elems = document.querySelectorAll('.draggable'),
-        text,
-        textNode,
-        words,
-        elem;
-
-    // iterate through all .draggable elements
-    for (var i = 0, l = elems.length; i < l; i++) {
-
-        elem = elems[i];
-        textNode = elem.childNodes[0];
-        text = textNode.nodeValue;
-
-        // remove current text node
-        elem.removeChild(textNode);
-        words = text.split(' ');
-
-      // iterate through words
-      for (var k = 0, ll = words.length; k < ll; k++) {
-         // create node for all words
-         textNode = document.createElement('span');
-         textNode.id = 'word_A' + i + k;
-         // allow dragging for words
-         textNode.draggable = true;
-         textNode.ondragstart = drag;
-         textNode.appendChild(document.createTextNode(words[k] + ' '));
-         elem.appendChild(textNode);
-      }
-    }
-
-	//document.body.innerHTML += "<a id='saver' href='data:text;charset=utf-8," +
-	//	encodeURIComponent(document.getElementById("context-menu").innerHTML) +
-	//	"'>phrase-table.txt</a>";
-	//document.getElementById("saver").click();
-
-	document.getElementById("send-green").addEventListener("click", function() {
-		str = document.getElementById("div1").textContent;
-		str = str.replace(/[()]/g, "");
-
-		window.postMessage({ type: "FROM_PAGE", text: str }, "*");
-		// console.log("I'm sending something");
-		}, false);
-
-	document.getElementById("send-white").addEventListener("click", quicksend, false);
-
-	document.getElementById("one-line").onkeypress = function(e) {
-		if (!e) e = window.event;
-		var keyCode = e.keyCode || e.which;
-		if (keyCode == '13') {						// Enter pressed
-			quicksend();
-			return false;
-			}
-		}
-
-	function quicksend() {
-		str = document.getElementById("one-line").value;
-
-		window.postMessage({ type: "FROM_PAGE", text: str }, "*");
-		}
-
-	document.getElementById("clear-white").addEventListener("click", function() {
-		document.getElementById("one-line").value = "";
-		}, false);
-
-	document.getElementById("clear-green1-L").addEventListener("click", function() {
-		var node = document.getElementById("div1");
-		node.removeChild(node.firstChild);
-		}, false);
-
-	document.getElementById("clear-green1-R").addEventListener("click", function() {
-		var node = document.getElementById("div1");
-		node.removeChild(node.lastChild);
-		}, false);
-
-	document.getElementById("clear-green").addEventListener("click", function() {
-		var node = document.getElementById("div1");
-		while (node.hasChildNodes()) {
-		    node.removeChild(node.lastChild);
-			}
-		}, false);
-
-	document.getElementById("clear-red").addEventListener("click", function() {
-		var node = document.getElementById("div2");
-		while (node.hasChildNodes()) {
-		    node.removeChild(node.lastChild);
-			}
-		}, false);
-
-	document.getElementById("smile").addEventListener("click", function() {
-		document.getElementById("one-line").value += ":)";
-		}, false);
-
-	document.getElementById("quotes").addEventListener("click", function() {
-		str = document.getElementById("one-line").value;
-		document.getElementById("one-line").value = "「" + str + "」";
-		}, false);
-
-	document.getElementById("send-up").addEventListener("click", function() {
-		str = document.getElementById("one-line").value;
-		words = str.split(" ");
-		words.forEach(function(word, i, array){
-			// wrap () around all words
-			word2 = "(" + word + ")";
-			// make words draggable
-	        // create node for all words
-		    textNode = document.createElement('span');
-			textNode.id = 'word_' + word_index;
-			++word_index;
-			// allow dragging for words
-			textNode.draggable = true;
-			textNode.ondragstart = drag;
-			textNode.appendChild(document.createTextNode(word2));
-			document.getElementById("div1").appendChild(textNode);
-			});
-		}, false);
-
-	document.getElementById("send-down").addEventListener("click", function() {
-		str = document.getElementById("div1").textContent;
-		str = str.replace(/[()]/g, "");
-
-		document.getElementById("one-line").value += str;
-		}, false);
-
-	document.getElementById("voov").addEventListener("click", function() {
-		window.postMessage({ type: "CHAT_ROOM", text: "voov" }, "*");
-		}, false);
-
-	document.getElementById("adult").addEventListener("click", function() {
-		window.postMessage({ type: "CHAT_ROOM", text: "adult" }, "*");
-		}, false);
-
-
-	// *********** Functions for manipulating context menu ***********
-
-	// insert item (suggestion)
-	document.getElementById("insert").addEventListener("click", function() {
-		str = document.getElementById("one-line").value;
-		// str = str.replace(/[()]/g, "");  // remove parentheses
-
-		// Determine the parent's ID, we insert to same parent
-		parentId = $("tr.selected")[0].getAttribute("data-tt-id");
-		// parentNode = $("#context-menu").treetable("node", parentId);
-
-		/*
-		nodeId = node_index.toString();
-		text = "<tr data-tt-branch='true' data-tt-id='" + nodeId +
-				"' data-tt-parent-id='" + parentId	+ "'><td>" + str + "</td></tr>";
-		++node_index;
-		var newRow = jQuery(text);
-		var cquoi = jQuery(newRow[0]);
-
-		$("#context-menu").treetable("loadBranch", parentNode, cquoi);
-		*/
-
-		// add to suggestions
-		var block = suggestions[parentId];
-		if (block != null)
-			block[block.length] = str;
-		else
-			block = [str];
-		suggestions[parentId] = block;
-
-		// no need to create draggable element
-		// just add to Right Pane
-		tr = document.getElementById("suggestions").insertRow();
-		td = tr.insertCell();
-		td.appendChild(document.createTextNode(str));
-
-		// set mouse-click action:
-		$(tr).click(tr_clicked);
-
-		/*
-		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").mousedown(function() {
-			$("tr.selected").removeClass("selected");
-			$(this).addClass("selected");
-			});
-
-		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").dblclick(function() {
-			var selection = $(this)[0].cells[0];
-			if (selection.innerHTML.slice(-4) != "</b>") {
-				textNode = document.createElement('span');
-				textNode.id = 'word_' + word_index;
-				++word_index;
-				// allow dragging for words
-				textNode.draggable = true;
-				textNode.ondragstart = drag;
-				textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
-				document.getElementById("div1").appendChild(textNode);
-				}
-			});
-		*/
-		}, false);
-
-	/*
-	// remove item (suggestion) from Right Panel
-	document.getElementById("delete").addEventListener("click", function() {
-		$("tr.selected")[0].setAttribute("bgColor", "#555555");
-		}, false);
-
-	// change item (suggestion) on Right Panel
-	document.getElementById("change").addEventListener("click", function() {
-		str = "";
-		children = document.getElementById("div1").children;
-		for (i = 0, l = children.length; i < l; ++i) {
-			str += children[i].innerText.slice(1,-1) + " ";
-			}
-
-		innerHTML = $("tr.selected td")[0].innerHTML;
-		innerHTML = innerHTML.slice(0, innerHTML.indexOf("</span>") + 7) + str;
-		$("tr.selected td")[0].innerHTML = innerHTML;
-		}, false);
-	*/
-
-	// convert right-panel item to tree heading
-	/*
-	document.getElementById("to-head").addEventListener("click", function() {
-		obj = $("tr.selected td")[0];
-		innerHTML = obj.innerHTML;
-		span_index = innerHTML.indexOf("</span>") + 7;
-		span = innerHTML.slice(0, span_index);
-		text = innerHTML.slice(span_index);
-		if (text.slice(0,3) == "<b>")
-			obj.innerHTML = span + text.slice(3,-4);
-		else
-			obj.innerHTML = span + "<b>" + text + "</b>";
-		}, false);
-	*/
-   
-	// add a child to tree
-	document.getElementById("add-child").addEventListener("click", function() {
-		// Determine the selected row's ID, we insert to it
-		parentId = $("tr.selected")[0].getAttribute("data-tt-id");
-		parentNode = $("#context-menu").treetable("node", parentId);
-
-		nodeId = node_index.toString();
-		text = "<tr data-tt-branch='true' data-tt-id='" + nodeId +
-				"' data-tt-parent-id='" + parentId	+ "'><td>" + "____" + "</td></tr>";
-		++node_index;
-		var newRow = jQuery(text);
-		var cquoi = jQuery(newRow[0]);
-
-		$("#context-menu").treetable("loadBranch", parentNode, cquoi);
-
-		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").mousedown(function() {
-			$("tr.selected").removeClass("selected");
-			$(this).addClass("selected");
-			});
-
-		$("#context-menu tbody tr[data-tt-id='" + nodeId + "']").dblclick(function() {
-			var selection = $(this)[0].cells[0];
-			if (selection.innerHTML.slice(-4) != "</b>") {
-				textNode = document.createElement('span');
-				textNode.id = 'word_' + word_index;
-				++word_index;
-				// allow dragging for words
-				textNode.draggable = true;
-				textNode.ondragstart = drag;
-				textNode.appendChild(document.createTextNode('(' + selection.innerText.slice(1) + ')'));
-				document.getElementById("div1").appendChild(textNode);
-				}
-			});
-
-		}, false);
-  }
-
-function allowDrop(ev)
-{
-ev.preventDefault();
-}
-
-function drag(ev)
-{
-ev.dataTransfer.setData("Text",ev.target.id);
-// console.log('targetid: ' + ev.target.id);
-}
-
-function drop(ev)
-{
-ev.preventDefault();
-var data=ev.dataTransfer.getData("Text");
-ev.target.appendChild(document.getElementById(data));
-// console.log("dropped onto: " + ev.target.id);
-}
+document.getElementById("adult").addEventListener("click", function() {
+	window.postMessage({type: "CHAT_ROOM", text: "adult"}, "*");
+}, false);
 
 </script>
 
-<style type="text/css">
-#div1 {width:1020px;height:60px;padding:2px;border:3px solid #33ff33;}
-#div2 {width:1020px;height:30px;padding:2px;border:3px solid #ff3333;}
+	</head>
 
-body {
-font-size: 50%;
-font-family: "Trebuchet MS",Verdana, Arial, Helvetica, sans-serif;
-padding-top: 0px;
-background-color: #000000;
-color: #ccffff;
-}
-label { display: block; margin-top: 10px; }
-input {font-size: 60%; font-weight: bold; }
-#login { width: 300px; margin: 0 auto; border: 1px solid #eee; padding: 25px; background-color: #FFFFCC; }
-a { color: #0066CC; text-decoration: none; border-bottom: 1px dotted #0066cc; }
-#submit_butt { margin-top: 15px; }
-h3 { margin-top: 0; }
+	<body>
+		<div id="green-box" ondrop="drop(event);" ondragover="allowDrop(event)"></div>
+		<div id="red-box" ondrop="drop(event);" ondragover="allowDrop(event)"></div>
+		<!-- div id="drag1" class="draggable">(炰�) (俙) (鋒�) (�)</div -->
 
-#left-panel {
-    overflow: hidden;
-	float:left;
-	width:500px;
-	padding:0px;
-}
-#right-panel {
-    float: right;
-	width:500px;
-	padding:0px;
-}
-#suggestions { background-color: #003300; }
-</style>
-</head>
+		<input type="text" id="white-box" style="width:100%; height:120%;" value=""><br>
+		<input type="button" value="type" id="send-white">
+		<input type="button" value="green" id="send-green" style="color: #00bb00;">
+		<input type="button" value="⬆" id="send-up">
+		<input type="button" value="⬇" id="send-down">
+		<input type="button" value="X" id="clear-white">
+		<input type="button" value="<x" id="clear-green1-L" style="color: #33ff33;">
+		<input type="button" value="x>" id="clear-green1-R" style="color: #33ff33;">
+		<input type="button" value="X" id="clear-green" style="color: #33ff33;">
+		<input type="button" value="X" id="clear-red" style="color: #ff3333;">
+		<input type="button" value=":)" id="smile">
+		<input type="button" value="``''" id="quotes">
 
-<body>
-<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-<!-- div id="drag1" class="draggable">(喜歡) (玩) (網愛) (嗎)</div -->
+		<input type="checkbox" id="delete" style="width:20px; height:20px;">del
+		<input type="checkbox" id="change" style="width:20px; height:20px;">ch
+		<input type="button" value="+" id="insert" style="color: #000000;">
+		<input type="button" value="+node" id="add-child" style="color: #000000;">
+		<!-- input type="button" value="↙head" id="to-head" style="color: #3333ff;" -->
+		&nbsp;voov <input type="radio" name="group1" id="voov" checked style="width:25px; height:25px;">
+		<input type="radio" name="group1" id="adult" style="width:25px; height:25px;"> VIP
 
-<input type="text" id="one-line" size="108" value=""><br>
-<input type="submit" value="type" id="send-white" style="color: #ffffff;">
-<input type="submit" value="green" id="send-green" style="color: #00bb00;">
-<input type="submit" value="up" id="send-up">
-<input type="submit" value="down" id="send-down">
-<input type="submit" value="X" id="clear-white" style="color: #ffffff;">
-<input type="submit" value="<x" id="clear-green1-L" style="color: #33ff33;">
-<input type="submit" value="x>" id="clear-green1-R" style="color: #33ff33;">
-<input type="submit" value="X" id="clear-green" style="color: #33ff33;">
-<input type="submit" value="X" id="clear-red" style="color: #ff3333;">
-<input type="submit" value=":)" id="smile">
-<input type="submit" value="「」" id="quotes">
+		<div id="suggestions">
+		</div>
 
-<input type="submit" value="+" id="insert" style="color: #3333ff;">
-<input type="checkbox" id="delete" style="width:20px; height:20px;">del
-<input type="checkbox" id="change" style="width:20px; height:20px;">change
-<input type="submit" value="+tag" id="add-child" style="color: #3333ff;">
-<!-- input type="submit" value="→head" id="to-head" style="color: #3333ff;" -->
-&nbsp;voov <input type="radio" name="group1" id="voov" checked style="width:25px; height:25px;">
-<input type="radio" name="group1" id="adult" style="width:25px; height:25px;"> adult
+		<div id="mid-levels">
 
-<div id="mid-levels">
+			<div id="column1">
+				<table id="level1">
+				</table>
+			</div>
 
-  <div id="left-panel">
+			<div id="column2">
+				<table id="level2">
+				</table>
+			</div>
 
-	<table id="context-menu" class="treetable">
-	<tbody>
-	</tbody>
-	</table>
+			<div id="column3">
+				<table id="level3">
+				</table>
+			</div>
 
-  </div>
+			<br style="clear:both;"/>
+		</div>
 
-  <div id="right-panel">
-	<br>
-	
-	<table id="suggestions">
-		<tr>
-			<td>(C)2013 YKY</td>
-		</tr>
-	</table>
+		<!-- a href="#" id="showkeyboard" title="virtual keyboard">Keyboard</a-->
 
-  </div>
+		<div id="keyboard">
+			<div id="row0">
+				<input name="accent" type="button" value="`">
+				<input name="1" type="button" value="1">
+				<input name="2" type="button" value="2">
+				<input name="3" type="button" value="3">
+				<input name="4" type="button" value="4">
+				<input name="5" type="button" value="5">
+				<input name="6" type="button" value="6">
+				<input name="7" type="button" value="7">
+				<input name="8" type="button" value="8">
+				<input name="9" type="button" value="9">
+				<input name="0" type="button" value="0">
+				<input name=" - " type="button" value=" - ">
+				<input name="=" type="button" value="=">
+				<input name="backspace" type="button" value="Backspace">
+			</div>
+			<div id="row0_shift">
+				<input name="tilde" type="button" value="~">
+				<input name="exc" type="button" value="!">
+				<input name="at" type="button" value="@">
+				<input name="hash" type="button" value="#">
+				<input name="dollar" type="button" value="$">
+				<input name="percent" type="button" value="%">
+				<input name="caret" type="button" value="^">
+				<input name="ampersand" type="button" value="&">
+				<input name="asterik" type="button" value="*">
+				<input name="openbracket" type="button" value="(">
+				<input name="closebracket" type="button" value=")">
+				<input name="underscore" type="button" value="_">
+				<input name="plus" type="button" value="+">
+				<input name="backspace" type="button" value="Backspace">
+			</div>
 
-<br style="clear:both;"/>
-</div>
+			<div id="row1">
+				<input name="q" type="button" value="q">
+				<input name="w" type="button" value="w">
+				<input name="e" type="button" value="e">
+				<input name="r" type="button" value="r">
+				<input name="t" type="button" value="t">
+				<input name="y" type="button" value="y">
+				<input name="u" type="button" value="u">
+				<input name="i" type="button" value="i">
+				<input name="o" type="button" value="o">
+				<input name="p" type="button" value="p">
+				<input name="[" type="button" value="[">
+				<input name="]" type="button" value="]">
+				<input name="\" type="button" value="\">
+			</div>
 
+			<div id="row1_shift">
+				<input name="Q" type="button" value="Q">
+				<input name="W" type="button" value="W">
+				<input name="E" type="button" value="E">
+				<input name="R" type="button" value="R">
+				<input name="T" type="button" value="T">
+				<input name="Y" type="button" value="Y">
+				<input name="U" type="button" value="U">
+				<input name="I" type="button" value="I">
+				<input name="O" type="button" value="O">
+				<input name="P" type="button" value="P">
+				<input name="{" type="button" value="{">
+				<input name="}" type="button" value="}">
+				<input name="|" type="button" value="|">
+			</div>
 
-<!-- a href="#" id="showkeyboard" title="virtual keyboard">Keyboard</a-->
+			<div id="row2">
+				<input name="a" type="button" value="a">
+				<input name="s" type="button" value="s" autocomplete="off">
+				<input name="d" type="button" value="d">
+				<input name="f" type="button" value="f">
+				<input name="g" type="button" value="g">
+				<input name="h" type="button" value="h">
+				<input name="j" type="button" value="j">
+				<input name="k" type="button" value="k">
+				<input name="l" type="button" value="l">
+				<input name=";" type="button" value=";">
+				<input name="＊" type="button" value="＊">
+			</div>
 
-<div id="keyboard">
-<div id="row0">
-<input name="accent" type="button" value="`">
-<input name="1" type="button" value="1">
-<input name="2" type="button" value="2">
-<input name="3" type="button" value="3">
-<input name="4" type="button" value="4">
-<input name="5" type="button" value="5">
-<input name="6" type="button" value="6">
-<input name="7" type="button" value="7">
-<input name="8" type="button" value="8">
-<input name="9" type="button" value="9">
-<input name="0" type="button" value="0">
-<input name=" - " type="button" value=" - ">
-<input name="=" type="button" value="=">
-<input name="backspace" type="button" value="Backspace">
-</div>
-<div id="row0_shift">
-<input name="tilde" type="button" value="~">
-<input name="exc" type="button" value="!">
-<input name="at" type="button" value="@">
-<input name="hash" type="button" value="#">
-<input name="dollar" type="button" value="$">
-<input name="percent" type="button" value="%">
-<input name="caret" type="button" value="^">
-<input name="ampersand" type="button" value="&">
-<input name="asterik" type="button" value="*">
-<input name="openbracket" type="button" value="(">
-<input name="closebracket" type="button" value=")">
-<input name="underscore" type="button" value="_">
-<input name="plus" type="button" value="+">
-<input name="backspace" type="button" value="Backspace">
-</div>
+			<div id="row2_shift">
+				<input name="a" type="button" value="A">
+				<input name="s" type="button" value="S" autocomplete="off">
+				<input name="d" type="button" value="D">
+				<input name="f" type="button" value="F">
+				<input name="g" type="button" value="G">
+				<input name="h" type="button" value="H">
+				<input name="j" type="button" value="J">
+				<input name="k" type="button" value="K">
+				<input name="l" type="button" value="L">
+				<input name=";" type="button" value=":">
+				<input name="＊" type="button" value="＊"＊">
+			</div>
 
-<div id="row1">
-<input name="q" type="button" value="q">
-<input name="w" type="button" value="w">
-<input name="e" type="button" value="e">
-<input name="r" type="button" value="r">
-<input name="t" type="button" value="t">
-<input name="y" type="button" value="y">
-<input name="u" type="button" value="u">
-<input name="i" type="button" value="i">
-<input name="o" type="button" value="o">
-<input name="p" type="button" value="p">
-<input name="[" type="button" value="[">
-<input name="]" type="button" value="]">
-<input name="\" type="button" value="\">
-</div>
+			<div id="row3">
+				<input name="Shift" type="button" value="Shift" id="shift">
+				<input name="z" type="button" value="z">
+				<input name="x" type="button" value="x">
+				<input name="c" type="button" value="c">
+				<input name="v" type="button" value="v">
+				<input name="b" type="button" value="b">
+				<input name="n" type="button" value="n">
+				<input name="m" type="button" value="m">
+				<input name="," type="button" value=",">
+				<input name="." type="button" value=".">
+				<input name="/" type="button" value="/">
+			</div>
 
-<div id="row1_shift">
-<input name="Q" type="button" value="Q">
-<input name="W" type="button" value="W">
-<input name="E" type="button" value="E">
-<input name="R" type="button" value="R">
-<input name="T" type="button" value="T">
-<input name="Y" type="button" value="Y">
-<input name="U" type="button" value="U">
-<input name="I" type="button" value="I">
-<input name="O" type="button" value="O">
-<input name="P" type="button" value="P">
-<input name="{" type="button" value="{">
-<input name="}" type="button" value="}">
-<input name="|" type="button" value="|">
-</div>
+			<div id="row3_shift">
+				<input name="Shift" type="button" value="Shift" id="shifton">
+				<input name="Z" type="button" value="Z">
+				<input name="X" type="button" value="X">
+				<input name="C" type="button" value="C">
+				<input name="V" type="button" value="V">
+				<input name="B" type="button" value="B">
+				<input name="N" type="button" value="N">
+				<input name="M" type="button" value="M">
+				<input name="lt" type="button" value="<">
+				<input name="gt" type="button" value=">">
+				<input name="?" type="button" value="?">
+			</div>
 
-<div id="row2">
-<input name="a" type="button" value="a">
-<input name="s" type="button" value="s" autocomplete="off">
-<input name="d" type="button" value="d">
-<input name="f" type="button" value="f">
-<input name="g" type="button" value="g">
-<input name="h" type="button" value="h">
-<input name="j" type="button" value="j">
-<input name="k" type="button" value="k">
-<input name="l" type="button" value="l">
-<input name=";" type="button" value=";">
-<input name="’" type="button" value="’">
-</div>
+			<div id="spacebar">
+				<input name="spacebar" type="button" value=" ">
+			</div>
 
-<div id="row2_shift">
-<input name="a" type="button" value="A">
-<input name="s" type="button" value="S" autocomplete="off">
-<input name="d" type="button" value="D">
-<input name="f" type="button" value="F">
-<input name="g" type="button" value="G">
-<input name="h" type="button" value="H">
-<input name="j" type="button" value="J">
-<input name="k" type="button" value="K">
-<input name="l" type="button" value="L">
-<input name=";" type="button" value=":">
-<input name="’" type="button" value="’"’">
-</div>
+		</div>
 
-<div id="row3">
-<input name="Shift" type="button" value="Shift" id="shift">
-<input name="z" type="button" value="z">
-<input name="x" type="button" value="x">
-<input name="c" type="button" value="c">
-<input name="v" type="button" value="v">
-<input name="b" type="button" value="b">
-<input name="n" type="button" value="n">
-<input name="m" type="button" value="m">
-<input name="," type="button" value=",">
-<input name="." type="button" value=".">
-<input name="/" type="button" value="/">
-</div>
+		<script src="js/jquery-1.10.1.min.js"></script>
+		<script>
 
-<div id="row3_shift">
-<input name="Shift" type="button" value="Shift" id="shifton">
-<input name="Z" type="button" value="Z">
-<input name="X" type="button" value="X">
-<input name="C" type="button" value="C">
-<input name="V" type="button" value="V">
-<input name="B" type="button" value="B">
-<input name="N" type="button" value="N">
-<input name="M" type="button" value="M">
-<input name="lt" type="button" value="<">
-<input name="gt" type="button" value=">">
-<input name="?" type="button" value="?">
-</div>
+			var word_index = 0;
+			var node_index = 0;
 
-<div id="spacebar">
-<input name="spacebar" type="button" value=" ">
-</div>
+		</script>
 
-</div>
+		<!-- script type="text/javascript" src="js/jquery-ui-personalized-1.5.2.min.js"></script-->
+		<script type="text/javascript" src="js/jquery-fieldselection.js"></script>
+		<!-- script type="text/javascript" src="js/vkeyboard.js"></script -->
 
-<script src="js/jquery-1.10.1.min.js"></script>
-<script src="js/jquery.treetable.js"></script>
-<script>
+		<div style="position:absolute;bottom:0;right:0;">
+			<a href="javascript:loadDB()">(Load DB) </a>
+			<a href="javascript:saveDB()">(Save DB) </a>
+		</div>
 
-	$("#context-menu").treetable({ expandable: true, clickableNodeNames: true });
+		<script>
 
-	var word_index = 0;
-	var node_index = 0;
+			loadDB();
 
-</script>
+			console.log("so far so good");
 
-<script type="text/javascript" src="js/jquery-ui-personalized-1.5.2.min.js"></script>
-<script type="text/javascript" src="js/jquery-fieldselection.js"></script>
-<script type="text/javascript" src="js/vkeyboard.js"></script>
+		</script>
 
-<div style="position:absolute;bottom:0;right:0;">
-<a href="javascript:loadFile()">Load</a>
-<a href="javascript:saveFile()">Save</a>
-</div>
-
-<script>
-
-	console.log("so far so good");
-
-</script>
-
-</body>
+	</body>
 </html>

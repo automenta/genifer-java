@@ -93,6 +93,12 @@
       }
     };
 
+    Node.prototype.updateBranchLeafClass = function(){
+      this.row.removeClass('branch');
+      this.row.removeClass('leaf');
+      this.row.addClass(this.isBranchNode()?'branch':'leaf');
+    };
+
     Node.prototype.level = function() {
       return this.ancestors().length;
     };
@@ -266,6 +272,10 @@
         }
       }
 
+      for (i = 0; i < this.nodes.length; i++) {
+        node = this.nodes[i].updateBranchLeafClass();
+      }
+
       return this;
     };
 
@@ -277,6 +287,7 @@
       //    is).
       // 3: +node+ should not be inserted in a location in a branch if this would
       //    result in +node+ being an ancestor of itself.
+      var nodeParent = node.parentNode();
       if (node !== destination && destination.id !== node.parentId && $.inArray(node, destination.ancestors()) === -1) {
         node.setParent(destination);
         this._moveRows(node, destination);
@@ -287,6 +298,14 @@
           node.parentNode().render();
         }
       }
+
+      if(nodeParent){
+        nodeParent.updateBranchLeafClass();
+      }
+      if(node.parentNode()){
+        node.parentNode().updateBranchLeafClass();
+      }
+      node.updateBranchLeafClass();
       return this;
     };
 
@@ -330,11 +349,14 @@
 
         // Clean up Tree object (so Node objects are GC-ed)
         delete this.tree[child.id];
-        this.nodes.splice($.inArray(child, this.nodes), 1)
+        this.nodes.splice($.inArray(child, this.nodes), 1);
+
       }
 
       // Reset node's collection of children
       node.children = [];
+
+      node.updateBranchLeafClass();
 
       return this;
     };
@@ -345,7 +367,7 @@
 
   // jQuery Plugin
   methods = {
-    init: function(options) {
+    init: function(options, force) {
       var settings;
 
       settings = $.extend({
@@ -373,7 +395,7 @@
       return this.each(function() {
         var el = $(this), tree;
 
-        if (el.data("treetable") === undefined) {
+        if (force || el.data("treetable") === undefined) {
           tree = new Tree(this, settings);
           tree.loadRows(this.rows).render();
 
@@ -432,12 +454,17 @@
       var settings = this.data("treetable").settings,
           tree = this.data("treetable").tree;
 
+      // TODO Switch to $.parseHTML
       rows = $(rows);
 
       if (node == null) { // Inserting new root nodes
         this.append(rows);
       } else if (node.children.length > 0) {
-        rows.insertAfter(node.children[node.children.length-1].row);
+        var current = node;
+        while (current.children.length > 0) {
+          current = current.children[current.children.length - 1];
+        }
+        rows.insertAfter(current.row);
       } else {
         rows.insertAfter(node.row);
       }
@@ -445,8 +472,7 @@
       this.data("treetable").loadRows(rows);
 
       // Make sure nodes are properly initialized
-      // TODO Review implementation
-      rows.each(function() {
+      rows.filter("tr").each(function() {
         tree[$(this).data(settings.nodeIdAttr)].show();
       });
 

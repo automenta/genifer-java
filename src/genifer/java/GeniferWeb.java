@@ -40,7 +40,7 @@ public class GeniferWeb extends Spark {
     }
 
     public static void getLocalBinaryFile(File file, OutputStream os) throws IOException {
-    	
+
     	byte[] buf = new byte[1024];
         FileInputStream in = new FileInputStream(file);
 
@@ -70,7 +70,7 @@ public class GeniferWeb extends Spark {
     public static void main(String[] args) {
 
         setPort(9090); // Spark will run on port 9090
-       
+
         Route formula;
 
         post(formula = new Route("/formula") {
@@ -150,6 +150,10 @@ public class GeniferWeb extends Spark {
                         rspns.header("Content-type", "image/png");
                         getStaticBinaryFile(page, rspns.raw().getOutputStream());
                         return null;
+                    } else if (page.endsWith(".ogg")) {
+                        rspns.header("Content-type", "audio/ogg");
+                        getStaticBinaryFile(page, rspns.raw().getOutputStream());
+                        return null;
                     } else if (page.endsWith(".gif")) {
                         rspns.header("Content-type", "image/gif");
                         getStaticBinaryFile(page, rspns.raw().getOutputStream());
@@ -159,7 +163,7 @@ public class GeniferWeb extends Spark {
                         getStaticBinaryFile(page, rspns.raw().getOutputStream());
                         return null;
                     } else if (page.endsWith(".html") || page.endsWith(".htm")) {
-                    	rspns.header("Content-type", "text/html");
+                    	rspns.header("Content-type", "text/html; charset=utf-8");
                         return getStaticTextFile(page);
                     } else {
                     	return getStaticTextFile(page);

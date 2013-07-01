@@ -1,0 +1,1 @@
+java -Dfile.encoding=gb18030 -jar dist/genifer-java.jar

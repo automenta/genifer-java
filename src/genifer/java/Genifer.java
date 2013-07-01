@@ -16,6 +16,9 @@ import java.util.logging.Logger;
 public class Genifer {
 
     public Genifer() {
+
+			System.setProperty("file.encoding", "gb18030");
+
         try {
             RT.loadResourceScript("genifer/core.clj");
         } catch (IOException ex) {
@@ -28,7 +31,7 @@ public class Genifer {
         }
     }
 
-    Object eval(String t) {       
+    Object eval(String t) {
         return RT.var("genifer.core", "repl1").invoke(t);
     }
 
@@ -47,10 +50,10 @@ public class Genifer {
 	//    public void induce();
 //    public void abduce(String input);
 //    public void backwardChain(String query);
-//    
+//
 //    public void setDebug(int level);
-//    
-//    public Memory getMemory();    
+//
+//    public Memory getMemory();
 
     public static void main(String[] args) throws Exception {
         System.out.println(new Genifer().eval("(+ 1 2)"));
