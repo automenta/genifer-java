@@ -25,25 +25,31 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-core</artifactId>
-            <version>0.7.1</version>
-        </dependency>
+<!--
+<dependency>
+	<groupId>io.dropwizard</groupId>
+	<artifactId>dropwizard-core</artifactId>
+	<version>0.8.0-rc1</version>
+</dependency>
+-->
+
         <dependency>
             <groupId>io.federecio</groupId>
             <artifactId>dropwizard-swagger</artifactId>
-            <version>0.5.1</version>
+            <version>0.5.2</version>
         </dependency>
-        
+
+
+        <!--
 <dependency>
 	<groupId>org.apache.velocity</groupId>
 	<artifactId>velocity</artifactId>
 	<version>1.7</version>
 </dependency>
+-->
         
     </dependencies>
-
+<!--
     <build>
         <plugins>
             <plugin>
@@ -55,6 +61,7 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -91,6 +98,12 @@
                     </execution>
                 </executions>
             </plugin>
+            
         </plugins>
     </build>
+    -->
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 </project>

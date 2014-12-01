@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package genifer.java;
+package genifer;
 
 import clojure.lang.RT;
 import java.io.IOException;
@@ -11,13 +11,14 @@ import java.util.logging.Logger;
 
 /**
  * interface to Genifer clojure
+ *
  * @author me
  */
 public class Genifer {
 
     public Genifer() {
 
-			System.setProperty("file.encoding", "gb18030");
+        System.setProperty("file.encoding", "gb18030");
 
         try {
             RT.loadResourceScript("genifer/core.clj");
@@ -31,7 +32,7 @@ public class Genifer {
         }
     }
 
-    Object eval(String t) {
+    public Object eval(String t) {
         return RT.var("genifer.core", "repl1").invoke(t);
     }
 
@@ -54,8 +55,7 @@ public class Genifer {
 //    public void setDebug(int level);
 //
 //    public Memory getMemory();
-
-    public static void main(String[] args) throws Exception {
-        System.out.println(new Genifer().eval("(+ 1 2)"));
-    }
+//    public static void main(String[] args) throws Exception {
+//        System.out.println(new Genifer().eval("(+ 1 2)"));
+//    }
 }
