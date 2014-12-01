@@ -1,10 +1,10 @@
 package genifer.web;
 
 import io.dropwizard.Application;
-import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.federecio.dropwizard.swagger.SwaggerDropwizard;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 
 /**
  * @author Federico Recio
@@ -22,17 +22,20 @@ public class WebServer extends Application<SampleConfiguration> {
 
     @Override
     public void initialize(Bootstrap<SampleConfiguration> bootstrap) {
-        //bootstrap.addBundle(new AssetsBundle("/assets/web", "/", "index.html", "genifer-client"));
-
         swaggerDropwizard.onInitialize(bootstrap);
     }
 
     @Override
     public void run(SampleConfiguration configuration, Environment environment) throws Exception {
         environment.jersey().register(new GeniferWeb());
-        environment.jersey().setUrlPattern("/*");
-        
-        new AssetsBundle("/web", "/").run(environment);
+
+        ResourceHandler resource_handler = new ResourceHandler();
+        resource_handler.setEtags(true);
+        resource_handler.setResourceBase("web");
+        resource_handler.setDirectoriesListed(true);
+        resource_handler.setWelcomeFiles(new String[]{ "index.html" });
+
+        environment.getApplicationContext().insertHandler(resource_handler);
         
         swaggerDropwizard.onRun(configuration, environment, "localhost");
     }
