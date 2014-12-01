@@ -97,9 +97,10 @@ var numPoints = 100;
 				timeout = setTimeout(function() {
 					$http({
 						method: "POST",
-						url: "/formularize",
-						data: $.param(postData),
-						headers: {"Content-Type": "application/x-www-form-urlencoded"}})
+						url: "/genifer/formularize",
+						data: $.param(postData)
+						//headers: {"Content-Type": "application/x-www-form-urlencoded"}
+                                                })
 						.success(function(data) {
 							$scope.formula = data;
 						});

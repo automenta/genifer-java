@@ -36,15 +36,15 @@ public class Genifer {
         return RT.var("genifer.core", "repl1").invoke(t);
     }
 
-    Object formularize(String t, String u) {
+    public Object formularize(String t, String u) {
         return RT.var("genifer.io", "formularize").invoke(t, u);
     }
 
-    Object getFormula(String t) {
+    public Object sendFormula(String t) {
         return RT.var("genifer.io", "send-formula").invoke(t);
     }
 
-    Object sendFormula(String t) {
+    public Object getFormula(String t) {
         return RT.var("genifer.io", "get-formula").invoke(t);
     }
 

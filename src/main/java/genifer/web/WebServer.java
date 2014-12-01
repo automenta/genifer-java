@@ -1,5 +1,6 @@
 package genifer.web;
 
+import genifer.Genifer;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
@@ -11,6 +12,8 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
  */
 public class WebServer extends Application<SampleConfiguration> {
 
+    public final Genifer genifer = new Genifer();
+    
     private final SwaggerDropwizard swaggerDropwizard = new SwaggerDropwizard();
 
     public static void main(String...args) throws Exception {
@@ -27,7 +30,7 @@ public class WebServer extends Application<SampleConfiguration> {
 
     @Override
     public void run(SampleConfiguration configuration, Environment environment) throws Exception {
-        environment.jersey().register(new GeniferWeb());
+        environment.jersey().register(new GeniferWeb(genifer));
 
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setEtags(true);
