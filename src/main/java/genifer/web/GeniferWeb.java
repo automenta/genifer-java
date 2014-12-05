@@ -7,6 +7,7 @@ package genifer.web;
 import com.wordnik.swagger.annotations.Api;
 import com.wordnik.swagger.annotations.ApiOperation;
 import genifer.Genifer;
+import genifer3.Genifer3;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -83,13 +84,22 @@ public class GeniferWeb  {
 
     @POST
     @ApiOperation("Add Formula")
-    @Path("/formula")
+    @Path("/addFormula")
     public Response addFormula(@FormParam("c") String formulaContent) {
         String r = genifer.sendFormula(formulaContent).toString();
         return Response.ok(r).build();
     }    
     
     @POST
+    @ApiOperation("Add Formula Scala")
+    @Path("/addFormulaScala")
+    public Response addFormulaScala(@FormParam("c") String formulaContent) {
+        // String r = genifer.sendFormula(formulaContent).toString();
+        String r = Genifer3.showMyPower(13);
+        return Response.ok(r).build();
+    }    
+
+	@POST
     @ApiOperation("Formularize")
     @Path("/formularize")
     public Response formularize(@FormParam("c") String listOfLinks, @FormParam("d") String listOfWords) {
@@ -103,7 +113,8 @@ public class GeniferWeb  {
     public Response eval(@FormParam("c") String input) {
         String r;
         if (input!=null) {
-            r = genifer.eval(input).toString();
+			r = Genifer3.showMyPower(20);
+            // r = genifer.eval(input).toString();
             r = r.replaceAll("\n", "<br/>"); //do this on client-side, to save some transferred bytes
         }
         else {

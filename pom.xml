@@ -24,6 +24,11 @@
             <version>1.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>genifer</groupId>
+            <artifactId>core-scala</artifactId>
+            <version>1.0</version>
+        </dependency>
 
 <!--
 <dependency>
@@ -53,8 +58,11 @@
 	<artifactId>jackson-dataformat-smile</artifactId>
 	<version>2.4.4</version>
 </dependency>
-
-        
+        <dependency>
+            <groupId>com.weiglewilczek.sbteclipse</groupId>
+            <artifactId>sbteclipse_2.9.0-1</artifactId>
+            <version>0.7</version>
+        </dependency>
     </dependencies>
 <!--
     <build>

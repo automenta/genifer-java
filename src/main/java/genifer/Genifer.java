@@ -5,6 +5,7 @@
 package genifer;
 
 import clojure.lang.RT;
+import genifer.Genifer;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +44,10 @@ public class Genifer {
     public Object sendFormula(String t) {
         return RT.var("genifer.io", "send-formula").invoke(t);
     }
+	
+	public Object sendFormulaScala(String t) {
+		return genifer3.Genifer3.showMyPower(10);
+	}
 
     public Object getFormula(String t) {
         return RT.var("genifer.io", "get-formula").invoke(t);

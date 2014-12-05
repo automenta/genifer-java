@@ -18,7 +18,7 @@ and open the template in the editor.
 
 	<link rel="stylesheet" href="css/reset.css">
 	<link rel="stylesheet" href="css/style.css">
-	
+
 	<script src="js/jquery.min.js"></script>
 	<script src="js/jquery-ui.min.js"></script>
 	<script src="js/jquery.flot.min.js"></script>
@@ -271,7 +271,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 
             #tabs { }
             .tabs-bottom { position:relative }
-            .tabs-bottom .ui-tabs-panel { /* height: 140px; */ overflow: auto; }
+            .tabs-bottom .ui-tabs-panel { height: 840px; overflow: auto; }
             .tabs-bottom .ui-tabs-nav {
 				position: absolute !important; left: 0; bottom: 0; right:0;
 				padding: 0 0.2em 0.2em 0; }
@@ -289,7 +289,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 
             /* PlumbJS Style Overrides  */
             #demo {
-				top:20;
+				top:220;
 				left:20;
 				width:95%;
 				height: 700px;
@@ -297,7 +297,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 				display:block;
 				position:relative;
 				margin-left:0.1em;
-				margin-top:0.1em;
+				margin-top:010.1em;
             }
             #window0 { top: 0.5em; left: 5em; }
             #window1 { top: 1.0em; left: 10em; }
@@ -368,7 +368,9 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 						<br/>
 					</div>
 					<div id="tabs-text">
+                                                                                      
 						<p>
+                                                    <br/><br/><br/><br/><br/>
 							<textarea id="messagearea" name="message" rows="2" cols="50" placeholder="input geniform"></textarea>
 						</p>
 						<p>
@@ -422,7 +424,7 @@ path, ._jsPlumb_endpoint { cursor:pointer; }
 		// Evaluate a function call to Clojure
         function eval() {
             var d = $('#messagearea').val();
-            var jqxhr = $.post("/genifer/eval", { c: d },
+            var jqxhr = $.post("/genifer/addFormulaScala", { c: d },
 				function(x) {
 					var r = 'in:' + d + '\n' + 'out:' + x + '\n';
 					document.getElementById('output').value += r
